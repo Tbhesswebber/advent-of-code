@@ -115,11 +115,9 @@ export const solveCommand = new Command("solve")
         await writeFile(resultPath, jsonify(results));
       });
 
+      exec(`git add ${getOutputPath(year, day)}`);
       exec(
-        `git add ${getOutputPath(
-          year,
-          day,
-        )}; git commit -m "solve(${year}): adds basic solution for day ${day}`,
+        `git commit -m "solve(${year}): adds basic solution for day ${day}"`,
       );
     } else {
       console.error("No file found matching the supplied parameters.");
