@@ -3,7 +3,7 @@ import { mkdir } from "node:fs/promises";
 import { Command } from "commander";
 import inquirer from "inquirer";
 
-import { ZERO } from "@lib/constants";
+import { ONE, ZERO } from "@lib/constants";
 
 import { dayArgument } from "../arguments";
 import { Part } from "../constants";
@@ -65,7 +65,12 @@ export const initCommand = new Command("init")
         {
           name: "day",
           message: "What day would you like to create files for?",
-          default: new Date().getDate(),
+          async default(answers: Pick<InitPrompt, "year">) {
+            const contents = await getFolderContents(
+              answers.year?.toString() ?? "",
+            );
+            return Number(contents.at(-ONE)) + ONE;
+          },
           type: "number",
           filter(value: number) {
             const dayLength = 2;
