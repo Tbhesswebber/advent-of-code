@@ -111,5 +111,8 @@ export const initCommand = new Command("init")
       ),
     ]);
 
-    frame("new line\nnew linessssss");
+    frame(
+      `Check out the problem at: https://adventofcode.com/${year}/day/${day}
+Get your input at: https://adventofcode.com/${year}/day/${day}/input`,
+    );
   });
