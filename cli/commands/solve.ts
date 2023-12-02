@@ -1,22 +1,23 @@
 import { exec } from "node:child_process";
-import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 
 import { Command } from "commander";
 import inquirer from "inquirer";
 
+import { ONE, ZERO } from "@lib/constants";
+
 import { dayArgument } from "../arguments";
 import { Part } from "../constants";
 import { jsonify } from "../libs/format";
+import { getFolderContents } from "../libs/fs";
 import {
   getInputPath,
   getOutputPath,
   getResultPath,
   getSolutionPath,
 } from "../libs/output";
+import { runner } from "../libs/runner";
 import { dayOption, partOption, yearOption } from "../options";
-
-import type { SolutionModule } from "../../global";
 
 interface RunnerPrompt {
   day?: number;
@@ -47,30 +48,40 @@ export const solveCommand = new Command("solve")
         {
           name: "year",
           message: "What year would you like to run?",
-          default: new Date().getFullYear(),
-          type: "number",
+          async default() {
+            const contents = await getFolderContents("");
+            return contents
+              .filter((name) => /^\d{4}$/.test(name))
+              .sort((a, b) => Number(b) - Number(a))
+              .at(ZERO);
+          },
+          type: "list",
+          async choices() {
+            const contents = await getFolderContents("");
+            return contents
+              .filter((name) => /^\d{4}$/.test(name))
+              .sort((a, b) => Number(b) - Number(a));
+          },
         },
         {
           name: "day",
           message: "What day would you like to run?",
-          default: new Date().getDate(),
-          type: "number",
-        },
-        {
-          name: "part",
-          message: "What question part would you like to run?",
-          default: "1",
-          choices: ["1", "2"],
+          async default(answers: Pick<RunnerPrompt, "year">) {
+            const contents = await getFolderContents(
+              answers.year?.toString() ?? "",
+            );
+            return contents.at(-ONE);
+          },
           type: "list",
-          validate(input) {
-            return input === "1" || input === "2";
+          async choices(answers) {
+            return getFolderContents(answers.year.toString());
           },
         },
       ],
       rawOptionCopy,
     );
 
-    const { year, part } = options;
+    const { year } = options;
     const dayLength = 2;
     const day = options.day.toString().padStart(dayLength, "0");
 
@@ -79,47 +90,33 @@ export const solveCommand = new Command("solve")
     const solution2Path = getSolutionPath(year, day, Part.Two);
     const resultPath = getResultPath(year, day);
 
-    if (
-      existsSync(solution1Path) &&
-      existsSync(solution2Path) &&
-      existsSync(inputPath)
-    ) {
-      const rawValues = await readFile(inputPath, { encoding: "utf8" });
-      const values = rawValues.trim().split("\n");
+    try {
+      const [result1, result2] = await Promise.all([
+        runner(inputPath, solution1Path),
+        runner(inputPath, solution2Path),
+      ]);
 
-      [solution1Path, solution2Path].map(async (solutionPath) => {
-        const { solution, transform } = await import(solutionPath).then(
-          (module: SolutionModule<unknown[]>) => ({
-            solution: (transformedInputs: unknown[]) =>
-              module.default(transformedInputs),
-            transform: (rawInput: string[]) =>
-              module.transformInput === undefined
-                ? rawInput
-                : module.transformInput(rawInput),
-          }),
+      let results: Results;
+
+      try {
+        results = await import(resultPath).then(
+          (module: { default: Results }) => module.default,
         );
+      } catch {
+        results = { part1: null, part2: null };
+      }
 
-        let results: Results;
-
-        try {
-          results = await import(resultPath).then(
-            (module: { default: Results }) => module.default,
-          );
-        } catch {
-          results = { part1: null, part2: null };
-        }
-
-        const result = solution(transform(values));
-
-        results[`part${part}`] = result;
-        await writeFile(resultPath, jsonify(results));
-      });
+      results.part1 = result1;
+      results.part2 = result2;
+      await writeFile(resultPath, jsonify(results));
 
       exec(`git add ${getOutputPath(year, day)}`);
       exec(
         `git commit -m "solve(${year}): adds basic solution for day ${day}"`,
       );
-    } else {
-      console.error("No file found matching the supplied parameters.");
+    } catch {
+      console.error(
+        "Something went wrong running the files with the given parameters.",
+      );
     }
   });

@@ -1,19 +1,14 @@
-import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
-
 import { Command } from "commander";
 import inquirer from "inquirer";
 
-import { dayArgument } from "../arguments";
-import { jsonify } from "../libs/format";
-import {
-  getResultPath,
-  getSolutionPath,
-  getTestInputPath,
-} from "../libs/output";
-import { dayOption, partOption, yearOption } from "../options";
+import { ONE, ZERO } from "@lib/constants";
 
-import type { SolutionModule } from "../../global";
+import { dayArgument } from "../arguments";
+import { frame } from "../libs/format";
+import { getFolderContents } from "../libs/fs";
+import { getSolutionPath, getTestInputPath } from "../libs/output";
+import { runner } from "../libs/runner";
+import { dayOption, partOption, yearOption } from "../options";
 
 type Part = 1 | 2;
 
@@ -21,11 +16,6 @@ interface RunnerPrompt {
   day?: number;
   part?: Part;
   year?: number;
-}
-
-interface Results {
-  part1: unknown;
-  part2: unknown;
 }
 
 export const testCommand = new Command("test")
@@ -46,14 +36,34 @@ export const testCommand = new Command("test")
         {
           name: "year",
           message: "What year would you like to run?",
-          default: new Date().getFullYear(),
-          type: "number",
+          async default() {
+            const contents = await getFolderContents("");
+            return contents
+              .filter((name) => /^\d{4}$/.test(name))
+              .sort((a, b) => Number(b) - Number(a))
+              .at(ZERO);
+          },
+          type: "list",
+          async choices() {
+            const contents = await getFolderContents("");
+            return contents
+              .filter((name) => /^\d{4}$/.test(name))
+              .sort((a, b) => Number(b) - Number(a));
+          },
         },
         {
           name: "day",
           message: "What day would you like to run?",
-          default: new Date().getDate(),
-          type: "number",
+          async default(answers: Pick<RunnerPrompt, "year">) {
+            const contents = await getFolderContents(
+              answers.year?.toString() ?? "",
+            );
+            return contents.at(-ONE);
+          },
+          type: "list",
+          async choices(answers) {
+            return getFolderContents(answers.year.toString());
+          },
         },
         {
           name: "part",
@@ -75,41 +85,13 @@ export const testCommand = new Command("test")
 
     const inputPath = getTestInputPath(year, day);
     const solutionPath = getSolutionPath(year, day, part);
-    const resultPath = getResultPath(year, day);
 
-    if (existsSync(solutionPath) && existsSync(inputPath)) {
-      const { solution, transform } = await import(solutionPath).then(
-        (module: SolutionModule<unknown[]>) => ({
-          solution: (transformedInputs: unknown[]) =>
-            module.default(transformedInputs),
-          transform: (rawInput: string[]) =>
-            module.transformInput === undefined
-              ? rawInput
-              : module.transformInput(rawInput),
-        }),
+    try {
+      const result = await runner(inputPath, solutionPath);
+      frame(`Result: ${result}`);
+    } catch {
+      console.error(
+        "Something went wrong running the files with the given parameters.",
       );
-      const rawValues = await readFile(inputPath, { encoding: "utf8" });
-      const values = rawValues.trim().split("\n");
-
-      let results: Results;
-
-      try {
-        results = await import(resultPath).then(
-          (module: { default: Results }) => module.default,
-        );
-      } catch {
-        results = { part1: null, part2: null };
-      }
-
-      const result = solution(transform(values));
-
-      console.log("");
-      console.log(`Result: ${jsonify(result)}`);
-      console.log("");
-
-      results[`part${part}`] = result;
-      await writeFile(resultPath, jsonify(results));
-    } else {
-      console.error("No file found matching the supplied parameters.");
     }
   });

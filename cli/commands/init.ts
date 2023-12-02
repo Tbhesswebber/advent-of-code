@@ -3,9 +3,11 @@ import { mkdir } from "node:fs/promises";
 import { Command } from "commander";
 import inquirer from "inquirer";
 
+import { ZERO } from "@lib/constants";
+
 import { dayArgument } from "../arguments";
 import { Part } from "../constants";
-import { writeFileIfNotExists } from "../libs/fs";
+import { getFolderContents, writeFileIfNotExists } from "../libs/fs";
 import {
   getInputPath,
   getOutputPath,
@@ -14,6 +16,11 @@ import {
   getTestInputPath,
 } from "../libs/output";
 import { dayOption, forceOption, yearOption } from "../options";
+import {
+  emptyFileTemplate,
+  emptyJsonFileTemplate,
+  solutionFileTemplate,
+} from "../templates";
 
 interface InitPrompt {
   day?: number;
@@ -39,9 +46,21 @@ export const initCommand = new Command("init")
       [
         {
           name: "year",
-          message: "What year would you like to create files for?",
-          default: new Date().getFullYear(),
-          type: "number",
+          message: "What year would you like to run?",
+          async default() {
+            const contents = await getFolderContents("");
+            return contents
+              .filter((name) => /^\d{4}$/.test(name))
+              .sort((a, b) => Number(b) - Number(a))
+              .at(ZERO);
+          },
+          type: "list",
+          async choices() {
+            const contents = await getFolderContents("");
+            return contents
+              .filter((name) => /^\d{4}$/.test(name))
+              .sort((a, b) => Number(b) - Number(a));
+          },
         },
         {
           name: "day",
@@ -59,17 +78,29 @@ export const initCommand = new Command("init")
 
     await mkdir(getOutputPath(year, day), { recursive: true });
     await Promise.all([
-      writeFileIfNotExists(getInputPath(year, day), "", rawOptions.force),
-      writeFileIfNotExists(getTestInputPath(year, day), "", rawOptions.force),
-      writeFileIfNotExists(getResultPath(year, day), "{}", rawOptions.force),
+      writeFileIfNotExists(
+        getInputPath(year, day),
+        emptyFileTemplate,
+        rawOptions.force,
+      ),
+      writeFileIfNotExists(
+        getTestInputPath(year, day),
+        emptyFileTemplate,
+        rawOptions.force,
+      ),
+      writeFileIfNotExists(
+        getResultPath(year, day),
+        emptyJsonFileTemplate,
+        rawOptions.force,
+      ),
       writeFileIfNotExists(
         getSolutionPath(year, day, Part.One),
-        "type DayInputs = string[];\n\nexport default function main(inputs: DayInputs): unknown {\n  return inputs;\n}\n\nexport function transformInput(inputs: string[]): DayInputs {\n  return inputs;\n}\n",
+        solutionFileTemplate,
         rawOptions.force,
       ),
       writeFileIfNotExists(
         getSolutionPath(year, day, Part.Two),
-        "type DayInputs = string[];\n\nexport default function main(inputs: DayInputs): unknown {\n  return inputs;\n}\n\nexport function transformInput(inputs: string[]): DayInputs {\n  return inputs;\n}\n",
+        solutionFileTemplate,
         rawOptions.force,
       ),
     ]);
