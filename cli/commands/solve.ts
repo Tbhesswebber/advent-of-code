@@ -6,6 +6,7 @@ import { Command } from "commander";
 import inquirer from "inquirer";
 
 import { dayArgument } from "../arguments";
+import { Part } from "../constants";
 import { jsonify } from "../libs/format";
 import {
   getInputPath,
@@ -16,8 +17,6 @@ import {
 import { dayOption, partOption, yearOption } from "../options";
 
 import type { SolutionModule } from "../../global";
-
-type Part = 1 | 2;
 
 interface RunnerPrompt {
   day?: number;
@@ -76,37 +75,45 @@ export const solveCommand = new Command("solve")
     const day = options.day.toString().padStart(dayLength, "0");
 
     const inputPath = getInputPath(year, day);
-    const solutionPath = getSolutionPath(year, day, part);
+    const solution1Path = getSolutionPath(year, day, Part.One);
+    const solution2Path = getSolutionPath(year, day, Part.Two);
     const resultPath = getResultPath(year, day);
 
-    if (existsSync(solutionPath) && existsSync(inputPath)) {
-      const { solution, transform } = await import(solutionPath).then(
-        (module: SolutionModule<unknown[]>) => ({
-          solution: (transformedInputs: unknown[]) =>
-            module.default(transformedInputs),
-          transform: (rawInput: string[]) =>
-            module.transformInput === undefined
-              ? rawInput
-              : module.transformInput(rawInput),
-        }),
-      );
+    if (
+      existsSync(solution1Path) &&
+      existsSync(solution2Path) &&
+      existsSync(inputPath)
+    ) {
       const rawValues = await readFile(inputPath, { encoding: "utf8" });
       const values = rawValues.trim().split("\n");
 
-      let results: Results;
-
-      try {
-        results = await import(resultPath).then(
-          (module: { default: Results }) => module.default,
+      [solution1Path, solution2Path].map(async (solutionPath) => {
+        const { solution, transform } = await import(solutionPath).then(
+          (module: SolutionModule<unknown[]>) => ({
+            solution: (transformedInputs: unknown[]) =>
+              module.default(transformedInputs),
+            transform: (rawInput: string[]) =>
+              module.transformInput === undefined
+                ? rawInput
+                : module.transformInput(rawInput),
+          }),
         );
-      } catch {
-        results = { part1: null, part2: null };
-      }
 
-      const result = solution(transform(values));
+        let results: Results;
 
-      results[`part${part}`] = result;
-      await writeFile(resultPath, jsonify(results));
+        try {
+          results = await import(resultPath).then(
+            (module: { default: Results }) => module.default,
+          );
+        } catch {
+          results = { part1: null, part2: null };
+        }
+
+        const result = solution(transform(values));
+
+        results[`part${part}`] = result;
+        await writeFile(resultPath, jsonify(results));
+      });
 
       exec(
         `git add ${getOutputPath(
