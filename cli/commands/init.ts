@@ -11,6 +11,7 @@ import {
   getOutputPath,
   getResultPath,
   getSolutionPath,
+  getTestInputPath,
 } from "../libs/output";
 import { dayOption, forceOption, yearOption } from "../options";
 
@@ -21,6 +22,7 @@ interface InitPrompt {
 }
 
 export const initCommand = new Command("init")
+  .version("1.0.0")
   .description("initialize the necessary files for the day")
   .addOption(yearOption)
   .addOption(dayOption)
@@ -58,6 +60,7 @@ export const initCommand = new Command("init")
     await mkdir(getOutputPath(year, day), { recursive: true });
     await Promise.all([
       writeFileIfNotExists(getInputPath(year, day), "", rawOptions.force),
+      writeFileIfNotExists(getTestInputPath(year, day), "", rawOptions.force),
       writeFileIfNotExists(getResultPath(year, day), "{}", rawOptions.force),
       writeFileIfNotExists(
         getSolutionPath(year, day, Part.One),

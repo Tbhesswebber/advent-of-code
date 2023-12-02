@@ -16,9 +16,11 @@ export async function writeFileIfNotExists(
 
   return writeFile(normalizedPath, contents ?? "", {
     flag: force ? undefined : "wx",
-  }).catch(() => {
-    console.log(
-      chalk.red(`An error occurred creating the file at ${normalizedPath}`),
-    );
-  });
+  })
+    .then(() => {
+      console.log(chalk.green(`Successfully created ${normalizedPath}`));
+    })
+    .catch(() => {
+      console.log(chalk.red(`An error occurred creating ${normalizedPath}`));
+    });
 }
