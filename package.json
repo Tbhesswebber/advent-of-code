@@ -1,0 +1,24 @@
+{
+  "name": "aoc",
+  "private": true,
+  "version": "0.0.0",
+  "bin": "./index.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "aoc": "tsx ./index.ts"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.10.2",
+    "tsx": "^4.6.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "inquirer": "^9.2.12"
+  }
+}
