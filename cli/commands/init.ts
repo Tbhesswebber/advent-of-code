@@ -7,6 +7,7 @@ import { ONE, ZERO } from "@lib/constants";
 
 import { dayArgument } from "../arguments";
 import { Part } from "../constants";
+import { frame } from "../libs/format";
 import { getFolderContents, writeFileIfNotExists } from "../libs/fs";
 import {
   getInputPath,
@@ -109,4 +110,6 @@ export const initCommand = new Command("init")
         rawOptions.force,
       ),
     ]);
+
+    frame("new line\nnew linessssss");
   });
