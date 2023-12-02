@@ -4,10 +4,8 @@
   "version": "0.0.0",
   "bin": "./index.ts",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "aoc": "tsx ./index.ts"
+    "aoc": "tsx ./index.ts",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",

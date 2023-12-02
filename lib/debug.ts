@@ -1,4 +1,4 @@
-export function log<T>(val: T): T {
-    console.log(val);
-    return val;
+export function log<T>(value: T): T {
+  console.log(value);
+  return value;
 }

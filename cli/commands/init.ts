@@ -3,7 +3,7 @@ import { mkdir } from "node:fs/promises";
 import { Command } from "commander";
 import inquirer from "inquirer";
 
-import { dayArg as dayArgument } from "../arguments";
+import { dayArgument } from "../arguments";
 import { Part } from "../constants";
 import { writeFileIfNotExists } from "../libs/fs";
 import {

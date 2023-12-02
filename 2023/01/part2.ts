@@ -1,8 +1,10 @@
+import { ONE } from "@lib/constants";
+
 import parser from "./part1";
 
-type DayArgs = string[];
+type DayArguments = string[];
 
-const numStringToNum: Record<string, string> = {
+const numberStringToNumber: Record<string, string> = {
   zero: "0",
   one: "1",
   two: "2",
@@ -15,17 +17,17 @@ const numStringToNum: Record<string, string> = {
   nine: "9",
 };
 
-export default function main(args: DayArgs) {
+export default function main(inputs: DayArguments): number {
   const numberString =
     /(zero)|(one)|(two)|(three)|(four)|(five)|(six)|(seven)|(eight)|(nine)/g;
-  const transformed = args.map((arg) =>
-      arg
-        .replace(numberString, (match) => {
-          return numStringToNum[match] + match.slice(1);
-        })
-        .replace(numberString, (match) => {
-          return numStringToNum[match] + match.slice(1);
-        })
+  const transformed = inputs.map((argument) =>
+    argument
+      .replaceAll(numberString, (match) => {
+        return numberStringToNumber[match] + match.slice(ONE);
+      })
+      .replaceAll(numberString, (match) => {
+        return numberStringToNumber[match] + match.slice(ONE);
+      }),
   );
 
   return parser(transformed);

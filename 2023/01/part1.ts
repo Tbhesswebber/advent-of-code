@@ -1,13 +1,22 @@
-type DayArgs = string[]
+import { ONE, ZERO } from "@lib/constants";
 
-export default function main(args: DayArgs) {
-    const numberChar = /^\d$/
-    return args.map((arg, i) => {
-        const numericChars = arg.split("").filter(char => numberChar.test(char));
-        const calibrationValue = parseInt(`${numericChars[0]}${numericChars[numericChars.length - 1]}`);
-        if (!calibrationValue || typeof calibrationValue !== "number" ) {
-            console.log({arg, i})
-        }
-        return calibrationValue;
-    }).reduce((sum, val) => sum + val);
+type DayArguments = string[];
+
+export default function main(input: DayArguments): number {
+  const numberChar = /^\d$/;
+  return input
+    .map((argument, index) => {
+      const numericChars = [...argument].filter((char) =>
+        numberChar.test(char),
+      );
+      const calibrationValue = Number.parseInt(
+        `${numericChars[ZERO]}${numericChars.at(-ONE)}`,
+        10,
+      );
+      if (!calibrationValue || typeof calibrationValue !== "number") {
+        console.log({ arg: argument, i: index });
+      }
+      return calibrationValue;
+    })
+    .reduce((sum, value) => sum + value);
 }

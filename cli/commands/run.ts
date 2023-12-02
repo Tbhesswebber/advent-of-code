@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { Command } from "commander";
 import inquirer from "inquirer";
 
-import { dayArg as dayArgument } from "../arguments";
+import { dayArgument } from "../arguments";
 import { jsonify } from "../libs/format";
 import { getInputPath, getSolutionPath } from "../libs/output";
 import { dayOption, partOption, yearOption } from "../options";
