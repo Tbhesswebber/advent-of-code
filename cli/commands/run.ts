@@ -1,36 +1,43 @@
-import { readFile, writeFile } from "node:fs/promises";
-import inquirer from "inquirer";
 import { existsSync } from "node:fs";
-import { dayOption, partOption, yearOption } from "../options";
-import { dayArg } from "../arguments";
+import { readFile, writeFile } from "node:fs/promises";
+
 import { Command } from "commander";
+import inquirer from "inquirer";
+
+import { dayArg as dayArgument } from "../arguments";
+import { jsonify } from "../libs/format";
 import { getInputPath, getResultPath, getSolutionPath } from "../libs/output";
+import { dayOption, partOption, yearOption } from "../options";
+
+import type { SolutionModule } from "../../global";
+
+type Part = 1 | 2;
 
 interface RunnerPrompt {
-  year?: number;
   day?: number;
-  part?: 1 | 2;
+  part?: Part;
+  year?: number;
 }
 
-type Results = {
-            part1: unknown;
-            part2: unknown;
-        };
+interface Results {
+  part1: unknown;
+  part2: unknown;
+}
 
 export const runCommand = new Command("run")
-    .version("1.0.0")
+  .version("1.0.0")
   .addOption(yearOption)
   .addOption(dayOption)
   .addOption(partOption)
-  .addArgument(dayArg)
-  .action(async (dayArg: undefined | number, rawOptions: RunnerPrompt) => {
-
-    if (dayArg !== undefined) {
-      rawOptions.year = new Date().getFullYear();
-      rawOptions.day = new Date().getDate();
+  .addArgument(dayArgument)
+  .action(async (dayInput: number | undefined, rawOptions: RunnerPrompt) => {
+    const rawOptionCopy = { ...rawOptions };
+    if (dayInput !== undefined) {
+      rawOptionCopy.year = new Date().getFullYear();
+      rawOptionCopy.day = new Date().getDate();
     }
 
-    const options: Required<RunnerPrompt> = await inquirer.prompt(
+    const options = await inquirer.prompt<Required<RunnerPrompt>>(
       [
         {
           name: "year",
@@ -51,43 +58,54 @@ export const runCommand = new Command("run")
           choices: ["1", "2"],
           type: "list",
           validate(input) {
-            return input === "1" || input === "2"
-          }
+            return input === "1" || input === "2";
+          },
         },
       ],
-      rawOptions
+      rawOptionCopy,
     );
 
-    const {year, part} = options;
-    const day = options.day?.toString().padStart(2, "0");
+    const { year, part } = options;
+    const dayLength = 2;
+    const day = options.day.toString().padStart(dayLength, "0");
 
     const inputPath = getInputPath(year, day);
-    const solutionPath = getSolutionPath(year, day , part);
+    const solutionPath = getSolutionPath(year, day, part);
     const resultPath = getResultPath(year, day);
 
     if (existsSync(solutionPath) && existsSync(inputPath)) {
-       const solution = await import(solutionPath).then(module => module.default);
-       const values = (await readFile(inputPath, {"encoding": "utf-8"})).trim().split("\n");
+      const { solution, transform } = await import(solutionPath).then(
+        (module: SolutionModule<unknown[]>) => ({
+          solution: (transformedInputs: unknown[]) =>
+            module.default(transformedInputs),
+          transform: (rawInput: string[]) =>
+            module.transformInput === undefined
+              ? rawInput
+              : module.transformInput(rawInput),
+        }),
+      );
+      const rawValues = await readFile(inputPath, { encoding: "utf8" });
+      const values = rawValues.trim().split("\n");
 
-       let results: Results;
-       
-       try {
+      let results: Results;
 
-           results = await import(resultPath).then((module) => module.default as Results);
-       } catch {
-        results = {part1: null, part2: null}
-       }
+      try {
+        results = await import(resultPath).then(
+          (module: { default: Results }) => module.default,
+        );
+      } catch {
+        results = { part1: null, part2: null };
+      }
 
-       
-       const result = solution(values);
-       
-       console.log("")
-       console.log("Result: " + result)
-       console.log("")
-       
-       results[`part${part}`] = result
-       writeFile(resultPath, JSON.stringify(results, null, 2))
+      const result = solution(transform(values));
+
+      console.log("");
+      console.log(`Result: ${jsonify(result)}`);
+      console.log("");
+
+      results[`part${part}`] = result;
+      await writeFile(resultPath, jsonify(results));
     } else {
-        console.error("No file found matching the supplied parameters.")
+      console.error("No file found matching the supplied parameters.");
     }
   });

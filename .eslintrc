@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "@tbhesswebber",
+    "@tbhesswebber/eslint-config/typescript",
+    "@tbhesswebber/eslint-config/format"
+  ],
+  "rules": {
+    "no-console": "off",
+    "unicorn/no-array-reduce": "off",
+    "unicorn/no-array-for-each": "off",
+    "no-use-before-define": ["error", { "functions": false }]
+  }
+}
