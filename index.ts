@@ -1,5 +1,6 @@
 #!/usr/bin/env tsx
 
+import "dotenv/config";
 import { Command, program } from "commander";
 
 import * as commands from "./cli/commands";

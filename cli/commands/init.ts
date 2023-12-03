@@ -7,6 +7,7 @@ import { ONE, ZERO } from "@lib/constants";
 
 import { dayArgument } from "../arguments";
 import { Part } from "../constants";
+import { getProblemInput } from "../libs/aoc";
 import { frame } from "../libs/format";
 import { getFolderContents, writeFileIfNotExists } from "../libs/fs";
 import {
@@ -26,6 +27,7 @@ import {
 interface InitPrompt {
   day?: number;
   force?: boolean;
+  shouldGetInput?: boolean;
   year?: number;
 }
 
@@ -43,7 +45,9 @@ export const initCommand = new Command("init")
       rawOptionCopy.day = new Date().getDate() + dayInput;
     }
 
-    const { year, day } = await inquirer.prompt<Required<InitPrompt>>(
+    const { year, day, shouldGetInput } = await inquirer.prompt<
+      Required<InitPrompt>
+    >(
       [
         {
           name: "year",
@@ -78,6 +82,12 @@ export const initCommand = new Command("init")
             return value.toString().padStart(dayLength, "0");
           },
         },
+        {
+          name: "getYear",
+          message: "Should we try to pull down the input for you?",
+          type: "confirm",
+          default: false,
+        },
       ],
       rawOptionCopy,
     );
@@ -91,7 +101,9 @@ export const initCommand = new Command("init")
       ),
       writeFileIfNotExists(
         getTestInputPath(year, day),
-        emptyFileTemplate,
+        shouldGetInput
+          ? (await getProblemInput(year, day)) ?? emptyFileTemplate
+          : emptyFileTemplate,
         rawOptions.force,
       ),
       writeFileIfNotExists(
