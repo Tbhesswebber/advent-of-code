@@ -75,7 +75,8 @@ export const initCommand = new Command("init")
             const contents = await getFolderContents(
               answers.year?.toString() ?? "",
             );
-            return Number(contents.at(-ONE)) + ONE;
+            const sorted = contents.sort((a, b) => a.localeCompare(b));
+            return Number(sorted.at(-ONE)) + ONE;
           },
           type: "number",
           filter(value: number) {
@@ -84,7 +85,7 @@ export const initCommand = new Command("init")
           },
         },
         {
-          name: "getYear",
+          name: "shouldGetInput",
           message: "Should we try to pull down the input for you?",
           type: "confirm",
           default: false,
@@ -93,18 +94,21 @@ export const initCommand = new Command("init")
       rawOptionCopy,
     );
 
+    let inputFileContents: string | null = emptyFileTemplate;
+    if (shouldGetInput) {
+      inputFileContents = await getProblemInput(year, day);
+    }
+
     await mkdir(getOutputPath(year, day), { recursive: true });
     await Promise.all([
       writeFileIfNotExists(
         getInputPath(year, day),
-        emptyFileTemplate,
+        inputFileContents ?? emptyFileTemplate,
         rawOptions.force,
       ),
       writeFileIfNotExists(
         getTestInputPath(year, day),
-        shouldGetInput
-          ? (await getProblemInput(year, day)) ?? emptyFileTemplate
-          : emptyFileTemplate,
+        emptyFileTemplate,
         rawOptions.force,
       ),
       writeFileIfNotExists(
