@@ -1,3 +1,4 @@
+import { exec } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 
 import { Command } from "commander";
@@ -127,4 +128,6 @@ export const initCommand = new Command("init")
       `Check out the problem at: https://adventofcode.com/${year}/day/${day}
 Get your input at: https://adventofcode.com/${year}/day/${day}/input`,
     );
+
+    exec(`code ${getSolutionPath(year, day, Part.One)}`);
   });
