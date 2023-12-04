@@ -1,11 +1,14 @@
 import { exec as execCallback } from "node:child_process";
 import { writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 import { Command } from "commander";
 import inquirer from "inquirer";
 
 import { ONE, ZERO } from "@lib/constants";
+import { logger } from "@lib/logger";
 
 import { dayArgument } from "../arguments";
 import { Part } from "../constants";
@@ -31,6 +34,8 @@ interface Results {
   part2: unknown;
 }
 
+// eslint-disable-next-line no-underscore-dangle, @typescript-eslint/naming-convention -- mimicking the dirname global
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const exec = promisify(execCallback);
 
 export const solveCommand = new Command("solve")
@@ -113,13 +118,16 @@ export const solveCommand = new Command("solve")
       results.part2 = result2;
       await writeFile(resultPath, jsonify(results));
 
-      await exec(`git add ${getOutputPath(year, day)}`);
+      await exec(`git add ${getOutputPath(year, day)}`, { cwd: __dirname });
       await exec(
         `git commit -m "solve(${year}): adds basic solution for day ${day}"`,
+        { cwd: __dirname },
       );
-    } catch {
-      console.error(
-        "Something went wrong running the files with the given parameters.",
+    } catch (error) {
+      logger.error(
+        "Something went wrong running the files with the given parameters.\n",
       );
+
+      logger.error(error);
     }
   });
