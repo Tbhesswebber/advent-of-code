@@ -1,5 +1,6 @@
-import { exec } from "node:child_process";
+import { exec as execCallback } from "node:child_process";
 import { writeFile } from "node:fs/promises";
+import { promisify } from "node:util";
 
 import { Command } from "commander";
 import inquirer from "inquirer";
@@ -29,6 +30,8 @@ interface Results {
   part1: unknown;
   part2: unknown;
 }
+
+const exec = promisify(execCallback);
 
 export const solveCommand = new Command("solve")
   .version("1.0.0")
@@ -110,8 +113,8 @@ export const solveCommand = new Command("solve")
       results.part2 = result2;
       await writeFile(resultPath, jsonify(results));
 
-      exec(`git add ${getOutputPath(year, day)}`);
-      exec(
+      await exec(`git add ${getOutputPath(year, day)}`);
+      await exec(
         `git commit -m "solve(${year}): adds basic solution for day ${day}"`,
       );
     } catch {
