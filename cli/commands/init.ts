@@ -10,6 +10,7 @@ import { logger } from "@lib/logger";
 import { dayArgument } from "../arguments";
 import { Part } from "../constants";
 import { getProblemInput } from "../libs/aoc";
+import { openBrowser } from "../libs/exec";
 import { getFolderContents, writeFileIfNotExists } from "../libs/fs";
 import {
   getInputPath,
@@ -132,6 +133,19 @@ export const initCommand = new Command("init")
       `Check out the problem at: https://adventofcode.com/${year}/day/${day}
 Get your input at: https://adventofcode.com/${year}/day/${day}/input`,
     );
+
+    const { shouldOpen } = await inquirer.prompt<{ shouldOpen: boolean }>([
+      {
+        name: "shouldOpen",
+        default: false,
+        type: "confirm",
+        message: "Would you like the problem to be opened in your browser?",
+      },
+    ]);
+
+    if (shouldOpen) {
+      openBrowser(`https://adventofcode.com/${year}/day/${day}`);
+    }
 
     exec(`code ${getSolutionPath(year, day, Part.One)}`);
   });
