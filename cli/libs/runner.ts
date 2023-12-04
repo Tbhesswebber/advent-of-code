@@ -21,7 +21,7 @@ export async function runner(
     }),
   );
   const rawValues = await readFile(inputPath, { encoding: "utf8" });
-  const values = rawValues.trim().split("\n");
+  const values = rawValues.split("\n");
 
   if (values.length === ONE && values[ZERO].length === ZERO) {
     const { shouldRun } = await inquirer.prompt<{ shouldRun: boolean }>([
