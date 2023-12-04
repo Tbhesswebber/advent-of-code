@@ -1,4 +1,4 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env bun
 
 import "dotenv/config";
 import { Command, program } from "commander";
