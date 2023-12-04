@@ -1,5 +1,6 @@
-import chalk from "chalk";
 import puppeteer from "puppeteer";
+
+import { logger } from "@lib/logger";
 
 import type { Browser, Page } from "puppeteer";
 
@@ -41,16 +42,13 @@ export async function getProblemInput(
     ]);
     if (response.ok()) {
       text = await response.text();
+      logger.log(text);
     } else {
-      console.error(chalk.bold.red("Something went wrong fetching the data"));
+      logger.error("Something went wrong fetching the data");
+      logger.error(`${response.status()}: ${response.url()}`);
     }
   } catch (error) {
-    if (error instanceof Error) {
-      console.error(chalk.bold.red.bgWhite(error.message));
-      console.error(chalk.bold.red.bgWhite(error.stack));
-    } else {
-      console.error(error);
-    }
+    logger.error(error);
   } finally {
     if (browser) {
       await browser.close();

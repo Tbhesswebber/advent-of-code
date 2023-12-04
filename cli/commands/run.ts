@@ -2,9 +2,9 @@ import { Command } from "commander";
 import inquirer from "inquirer";
 
 import { ONE, ZERO } from "@lib/constants";
+import { logger } from "@lib/logger";
 
 import { dayArgument } from "../arguments";
-import { frame } from "../libs/format";
 import { getFolderContents } from "../libs/fs";
 import { getInputPath, getSolutionPath } from "../libs/output";
 import { runner } from "../libs/runner";
@@ -88,10 +88,11 @@ export const runCommand = new Command("run")
 
     try {
       const result = await runner(inputPath, solutionPath);
-      frame(`Result: ${result}`);
-    } catch {
-      console.error(
+      logger.frame(`Result: ${result}`);
+    } catch (error) {
+      logger.error(
         "Something went wrong running the files with the given parameters.",
       );
+      logger.error(error);
     }
   });

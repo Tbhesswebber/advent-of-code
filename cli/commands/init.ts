@@ -5,11 +5,11 @@ import { Command } from "commander";
 import inquirer from "inquirer";
 
 import { ONE, ZERO } from "@lib/constants";
+import { logger } from "@lib/logger";
 
 import { dayArgument } from "../arguments";
 import { Part } from "../constants";
 import { getProblemInput } from "../libs/aoc";
-import { frame } from "../libs/format";
 import { getFolderContents, writeFileIfNotExists } from "../libs/fs";
 import {
   getInputPath,
@@ -124,7 +124,7 @@ export const initCommand = new Command("init")
       ),
     ]);
 
-    frame(
+    logger.frame(
       `Check out the problem at: https://adventofcode.com/${year}/day/${day}
 Get your input at: https://adventofcode.com/${year}/day/${day}/input`,
     );
