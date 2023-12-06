@@ -40,6 +40,9 @@ const exec = promisify(execCallback);
 
 export const solveCommand = new Command("solve")
   .version("1.0.0")
+  .description(
+    "rerun the code for the day, storing the output to a file within the day's directory and then commit the directory",
+  )
   .addOption(yearOption)
   .addOption(dayOption)
   .addOption(partOption)

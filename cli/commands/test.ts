@@ -20,6 +20,9 @@ interface RunnerPrompt {
 
 export const testCommand = new Command("test")
   .version("1.0.0")
+  .description(
+    "run the code for the day against `testInput.txt` rather than the actual input",
+  )
   .addOption(yearOption)
   .addOption(dayOption)
   .addOption(partOption)
