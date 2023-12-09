@@ -60,7 +60,7 @@ function* spinnerGenerator(): Generator<string, string, boolean> {
   return "█";
 }
 
-function makeProgressLogger(total: number): (value: number) => void {
+function makeProgressLogger(total: number): (value?: number) => void {
   const { columns } = process.stdout;
   const spinner = spinnerGenerator();
   function getProgressString(value: number): string {
@@ -87,8 +87,14 @@ function makeProgressLogger(total: number): (value: number) => void {
     }${progressString}`;
   }
 
-  return (value: number) => {
-    ui.updateBottomBar(chalk.white.bold(getProgressString(value)));
+  let defaultValue = ZERO;
+
+  return (value?: number) => {
+    defaultValue = value ?? defaultValue;
+    ui.updateBottomBar(
+      // eslint-disable-next-line no-plusplus -- inconsequential
+      chalk.white.bold(getProgressString(defaultValue++)),
+    );
   };
 }
 
