@@ -29,7 +29,7 @@ export const runCommand = new Command("run")
     const rawOptionCopy = { ...rawOptions };
     if (dayInput !== undefined) {
       rawOptionCopy.year = new Date().getFullYear();
-      rawOptionCopy.day = new Date().getDate();
+      rawOptionCopy.day = new Date().getDate() + dayInput;
     }
 
     const options = await inquirer.prompt<Required<RunnerPrompt>>(
