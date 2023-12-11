@@ -7,3 +7,5 @@ export const enum Part {
   One = 1,
   Two = 2,
 }
+
+export const DECEMBER = 12;

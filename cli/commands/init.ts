@@ -1,30 +1,14 @@
-import { exec } from "node:child_process";
-import { mkdir } from "node:fs/promises";
-
 import { Command } from "commander";
 import inquirer from "inquirer";
 
 import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
+import { AoC } from "../api";
 import { dayArgument } from "../arguments";
-import { Part } from "../constants";
-import { getProblemInput } from "../libs/aoc";
-import { openBrowser } from "../libs/exec";
-import { getFolderContents, writeFileIfNotExists } from "../libs/fs";
-import {
-  getInputPath,
-  getOutputPath,
-  getResultPath,
-  getSolutionPath,
-  getTestInputPath,
-} from "../libs/output";
+import { DECEMBER } from "../constants";
+import { getFolderContents } from "../libs/fs";
 import { dayOption, forceOption, yearOption } from "../options";
-import {
-  emptyFileTemplate,
-  emptyJsonFileTemplate,
-  solutionFileTemplate,
-} from "../templates";
 
 interface InitPrompt {
   day?: number;
@@ -95,43 +79,16 @@ export const initCommand = new Command("init")
       rawOptionCopy,
     );
 
-    let inputFileContents: string | null = emptyFileTemplate;
-    if (shouldGetInput) {
-      inputFileContents = await getProblemInput(year, day);
-    }
+    const api = new AoC(new Date(year, DECEMBER, day));
 
-    await mkdir(getOutputPath(year, day), { recursive: true });
-    await Promise.all([
-      writeFileIfNotExists(
-        getInputPath(year, day),
-        inputFileContents ?? emptyFileTemplate,
-        rawOptions.force,
-      ),
-      writeFileIfNotExists(
-        getTestInputPath(year, day),
-        emptyFileTemplate,
-        rawOptions.force,
-      ),
-      writeFileIfNotExists(
-        getResultPath(year, day),
-        emptyJsonFileTemplate,
-        rawOptions.force,
-      ),
-      writeFileIfNotExists(
-        getSolutionPath(year, day, Part.One),
-        solutionFileTemplate,
-        rawOptions.force,
-      ),
-      writeFileIfNotExists(
-        getSolutionPath(year, day, Part.Two),
-        solutionFileTemplate,
-        rawOptions.force,
-      ),
-    ]);
+    await api.setupFileStructure({
+      force: rawOptions.force,
+      fetch: shouldGetInput,
+    });
 
     logger.frame(
-      `Check out the problem at: https://adventofcode.com/${year}/day/${day}
-Get your input at: https://adventofcode.com/${year}/day/${day}/input`,
+      `Check out the problem at: ${api.problemUrl}
+Get your input at: ${api.inputUrl}`,
     );
 
     const { shouldOpen } = await inquirer.prompt<{ shouldOpen: boolean }>([
@@ -144,8 +101,8 @@ Get your input at: https://adventofcode.com/${year}/day/${day}/input`,
     ]);
 
     if (shouldOpen) {
-      openBrowser(`https://adventofcode.com/${year}/day/${day}`);
+      api.openProblemSite();
     }
 
-    exec(`code ${getSolutionPath(year, day, Part.One)}`);
+    api.openIde();
   });
