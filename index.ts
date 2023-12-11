@@ -3,7 +3,7 @@
 import "dotenv/config";
 import { Command, program } from "commander";
 
-import * as commands from "./cli/commands";
+import * as commands from "./package/commands";
 
 Object.entries(commands).forEach(([, command]) => {
   if (command instanceof Command) {
