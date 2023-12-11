@@ -4,13 +4,14 @@ import inquirer from "inquirer";
 import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
+import { AoC } from "../api";
 import { dayArgument } from "../arguments";
+import { DECEMBER } from "../constants";
 import { getFolderContents } from "../libs/fs";
-import { getInputPath, getSolutionPath } from "../libs/output";
-import { runner } from "../libs/runner";
+import { InputError } from "../libs/oops/input-error";
 import { dayOption, partOption, yearOption } from "../options";
 
-type Part = 1 | 2;
+import type { Part } from "../constants";
 
 interface RunnerPrompt {
   day?: number;
@@ -32,7 +33,7 @@ export const runCommand = new Command("run")
       rawOptionCopy.day = new Date().getDate() + dayInput;
     }
 
-    const options = await inquirer.prompt<Required<RunnerPrompt>>(
+    const { year, day, part } = await inquirer.prompt<Required<RunnerPrompt>>(
       [
         {
           name: "year",
@@ -79,21 +80,24 @@ export const runCommand = new Command("run")
       ],
       rawOptionCopy,
     );
+    const api = new AoC(new Date(year, DECEMBER, day));
 
-    const { year, part } = options;
-    const dayLength = 2;
-    const day = options.day.toString().padStart(dayLength, "0");
-
-    const inputPath = getInputPath(year, day);
-    const solutionPath = getSolutionPath(year, day, part);
+    const { inputPath } = api;
 
     try {
-      const result = await runner(inputPath, solutionPath);
+      const result = await api.run(part, inputPath);
       logger.frame(`Result: ${result}`);
     } catch (error) {
-      logger.error(
-        "Something went wrong running the files with the given parameters.",
-      );
-      logger.error(error);
+      if (error instanceof InputError) {
+        logger.error(error.message);
+      } else if (error instanceof Error) {
+        logger.error(error.message);
+        console.error(error.stack);
+      } else {
+        logger.error(
+          "Something went wrong running the files with the given parameters.",
+        );
+        logger.error(error);
+      }
     }
   });

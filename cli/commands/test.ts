@@ -4,16 +4,20 @@ import inquirer from "inquirer";
 import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
+import { AoC } from "../api";
 import { dayArgument } from "../arguments";
+import { DECEMBER } from "../constants";
 import { getFolderContents } from "../libs/fs";
-import { getSolutionPath, getTestInputPath } from "../libs/output";
-import { runner } from "../libs/runner";
+import { InputError } from "../libs/oops/input-error";
+import { getTestInputPath } from "../libs/output";
 import {
   dayOption,
   inputFileNameOption,
   partOption,
   yearOption,
 } from "../options";
+
+import type { Optionally } from "../../global";
 
 type Part = 1 | 2;
 
@@ -41,7 +45,9 @@ export const testCommand = new Command("test")
       rawOptionCopy.day = new Date().getDate() + dayInput;
     }
 
-    const options = await inquirer.prompt<Required<RunnerPrompt>>(
+    const { year, day, part, inputFile } = await inquirer.prompt<
+      Optionally<RunnerPrompt, "inputFile">
+    >(
       [
         {
           name: "year",
@@ -88,21 +94,27 @@ export const testCommand = new Command("test")
       ],
       rawOptionCopy,
     );
+    const api = new AoC(new Date(year, DECEMBER, day));
 
-    const { year, part, inputFile } = options;
-    const dayLength = 2;
-    const day = options.day.toString().padStart(dayLength, "0");
-
-    const inputPath = getTestInputPath(year, day, inputFile);
-    const solutionPath = getSolutionPath(year, day, part);
+    const inputPath =
+      inputFile === undefined
+        ? api.testInputPath
+        : getTestInputPath(year, day, inputFile);
 
     try {
-      const result = await runner(inputPath, solutionPath);
+      const result = await api.run(part, inputPath);
       logger.frame(`Result: ${result}`);
     } catch (error) {
-      logger.error(
-        "Something went wrong running the files with the given parameters.",
-      );
-      logger.error(error);
+      if (error instanceof InputError) {
+        logger.error(error.message);
+      } else if (error instanceof Error) {
+        logger.error(error.message);
+        console.error(error.stack);
+      } else {
+        logger.error(
+          "Something went wrong running the files with the given parameters.",
+        );
+        logger.error(error);
+      }
     }
   });

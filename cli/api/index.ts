@@ -1,11 +1,14 @@
 import { exec } from "node:child_process";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
+
+import { ONE, ZERO } from "@lib/constants";
 
 import { Part } from "../constants";
 import { getProblemInput } from "../libs/aoc";
 import { openBrowser } from "../libs/exec";
 import { writeFileIfNotExists } from "../libs/fs";
 import { ChristmasError } from "../libs/oops/christmas-error";
+import { InputError } from "../libs/oops/input-error";
 import {
   getInputPath,
   getOutputPath,
@@ -19,6 +22,7 @@ import {
   solutionFileTemplate,
 } from "../templates";
 
+import type { SolutionModule } from "../../global";
 import type { ChildProcess } from "node:child_process";
 
 interface Config<TShouldFetch extends boolean = false> {
@@ -28,6 +32,11 @@ interface Config<TShouldFetch extends boolean = false> {
 
 export class AoC {
   readonly ideCommand: string = "code";
+
+  readonly results: Record<Part, number | undefined> = {
+    [Part.One]: undefined,
+    [Part.Two]: undefined,
+  };
 
   protected day: number;
 
@@ -54,8 +63,16 @@ export class AoC {
     return `https://adventofcode.com/${this.year}/day/${this.day}/input`;
   }
 
+  get part1Result(): number | undefined {
+    return this.results[Part.One];
+  }
+
   get part1SolutionPath(): string {
     return getSolutionPath(this.year, this.day, Part.One);
+  }
+
+  get part2Result(): number | undefined {
+    return this.results[Part.Two];
   }
 
   get part2SolutionPath(): string {
@@ -120,6 +137,32 @@ export class AoC {
 
   openProblemSite(): ChildProcess {
     return openBrowser(`https://adventofcode.com/${this.year}/day/${this.day}`);
+  }
+
+  async run(part: Part, inputPath: string): Promise<number | null> {
+    const rawValues = await readFile(inputPath, { encoding: "utf8" });
+    const values = rawValues.split("\n");
+
+    if (values.length === ONE && values[ZERO].length === ZERO) {
+      throw new InputError(values);
+    }
+
+    const solutionPath =
+      part === Part.One ? this.part1SolutionPath : this.part2SolutionPath;
+    const { solution, transform } = await import(solutionPath).then(
+      (module: SolutionModule<unknown[]>) => ({
+        solution: (transformedInputs: unknown[]) =>
+          module.default(transformedInputs),
+        transform: (rawInput: string[]) =>
+          module.transformInput === undefined
+            ? rawInput
+            : module.transformInput(rawInput),
+      }),
+    );
+
+    this.results[part] = solution(transform(values));
+
+    return this.results[part] ?? null;
   }
 
   async setupFileStructure({ fetch, force }: Config<true> = {}): Promise<void> {
