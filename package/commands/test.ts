@@ -1,7 +1,6 @@
 import { Command } from "commander";
 import inquirer from "inquirer";
 
-import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
 import { AoC } from "../api";
@@ -13,7 +12,7 @@ import {
   partOption,
   yearOption,
 } from "../libs/inquisitor/options";
-import { getFolderContents } from "../libs/node/fs";
+import { datePrompts } from "../libs/inquisitor/prompts";
 import { getTestInputPath } from "../libs/node/path";
 import { ChristmasError } from "../libs/oops/christmas-error";
 import { InputError } from "../libs/oops/input-error";
@@ -46,42 +45,12 @@ export const testCommand = new Command("test")
       rawOptionCopy.day = new Date().getDate() + dayInput;
     }
 
+    const optionsWithDate = await datePrompts(rawOptionCopy);
+
     const { year, day, part, inputFile } = await inquirer.prompt<
       Optionally<RunnerPrompt, "inputFile">
     >(
       [
-        {
-          name: "year",
-          message: "What year would you like to run?",
-          async default() {
-            const contents = await getFolderContents("");
-            return contents
-              .filter((name) => /^\d{4}$/.test(name))
-              .sort((a, b) => Number(b) - Number(a))
-              .at(ZERO);
-          },
-          type: "list",
-          async choices() {
-            const contents = await getFolderContents("");
-            return contents
-              .filter((name) => /^\d{4}$/.test(name))
-              .sort((a, b) => Number(b) - Number(a));
-          },
-        },
-        {
-          name: "day",
-          message: "What day would you like to run?",
-          async default(answers: Pick<RunnerPrompt, "year">) {
-            const contents = await getFolderContents(
-              answers.year?.toString() ?? "",
-            );
-            return contents.at(-ONE);
-          },
-          type: "list",
-          async choices(answers) {
-            return getFolderContents(answers.year.toString());
-          },
-        },
         {
           name: "part",
           message: "What question part would you like to run?",
@@ -93,7 +62,7 @@ export const testCommand = new Command("test")
           },
         },
       ],
-      rawOptionCopy,
+      optionsWithDate,
     );
 
     try {

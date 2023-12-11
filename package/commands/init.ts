@@ -1,22 +1,21 @@
 import { Command } from "commander";
 import inquirer from "inquirer";
 
-import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
 import { AoC } from "../api";
 import { DECEMBER } from "../libs/constants";
 import { dayArgument } from "../libs/inquisitor/arguments";
 import { dayOption, forceOption, yearOption } from "../libs/inquisitor/options";
+import { datePrompts } from "../libs/inquisitor/prompts";
 import { exec, openBrowser } from "../libs/node/child-process";
-import { getFolderContents } from "../libs/node/fs";
 import { ChristmasError } from "../libs/oops/christmas-error";
 
-interface InitPrompt {
-  day?: number;
+import type { DatePrompt } from "../libs/inquisitor/prompts";
+
+interface InitPrompt extends DatePrompt {
   force?: boolean;
   shouldGetInput?: boolean;
-  year?: number;
 }
 
 export const initCommand = new Command("init")
@@ -33,44 +32,12 @@ export const initCommand = new Command("init")
       rawOptionCopy.day = new Date().getDate() + dayInput;
     }
 
+    const optionsWithDate = await datePrompts(rawOptionCopy);
+
     const { year, day, shouldGetInput } = await inquirer.prompt<
       Required<InitPrompt>
     >(
       [
-        {
-          name: "year",
-          message: "What year would you like to run?",
-          async default() {
-            const contents = await getFolderContents("");
-            return contents
-              .filter((name) => /^\d{4}$/.test(name))
-              .sort((a, b) => Number(b) - Number(a))
-              .at(ZERO);
-          },
-          type: "list",
-          async choices() {
-            const contents = await getFolderContents("");
-            return contents
-              .filter((name) => /^\d{4}$/.test(name))
-              .sort((a, b) => Number(b) - Number(a));
-          },
-        },
-        {
-          name: "day",
-          message: "What day would you like to create files for?",
-          async default(answers: Pick<InitPrompt, "year">) {
-            const contents = await getFolderContents(
-              answers.year?.toString() ?? "",
-            );
-            const sorted = contents.sort((a, b) => a.localeCompare(b));
-            return Number(sorted.at(-ONE)) + ONE;
-          },
-          type: "number",
-          filter(value: number) {
-            const dayLength = 2;
-            return value.toString().padStart(dayLength, "0");
-          },
-        },
         {
           name: "shouldGetInput",
           message: "Should we try to pull down the input for you?",
@@ -78,7 +45,7 @@ export const initCommand = new Command("init")
           default: false,
         },
       ],
-      rawOptionCopy,
+      optionsWithDate,
     );
 
     try {
