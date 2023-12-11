@@ -5,11 +5,11 @@ import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
 import { AoC } from "../api";
-import { dayArgument } from "../arguments";
-import { DECEMBER } from "../constants";
+import { dayArgument } from "../libs/arguments";
+import { DECEMBER } from "../libs/constants";
 import { exec, openBrowser } from "../libs/exec";
 import { getFolderContents } from "../libs/fs";
-import { dayOption, forceOption, yearOption } from "../options";
+import { dayOption, forceOption, yearOption } from "../libs/options";
 
 interface InitPrompt {
   day?: number;

@@ -5,13 +5,13 @@ import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
 import { AoC } from "../api";
-import { dayArgument } from "../arguments";
-import { DECEMBER } from "../constants";
+import { dayArgument } from "../libs/arguments";
+import { DECEMBER } from "../libs/constants";
 import { getFolderContents } from "../libs/fs";
 import { InputError } from "../libs/oops/input-error";
-import { dayOption, partOption, yearOption } from "../options";
+import { dayOption, partOption, yearOption } from "../libs/options";
 
-import type { Part } from "../constants";
+import type { Part } from "../libs/constants";
 
 interface RunnerPrompt {
   day?: number;

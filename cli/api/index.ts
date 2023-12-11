@@ -2,8 +2,8 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 import { ONE, ZERO } from "@lib/constants";
 
-import { Part } from "../constants";
 import { getProblemInput } from "../libs/aoc";
+import { Part } from "../libs/constants";
 import { jsonify } from "../libs/format";
 import { writeFileIfNotExists } from "../libs/fs";
 import { ChristmasError } from "../libs/oops/christmas-error";
@@ -19,7 +19,7 @@ import {
   emptyFileTemplate,
   emptyJsonFileTemplate,
   solutionFileTemplate,
-} from "../templates";
+} from "../libs/templates";
 
 import type { SolutionModule } from "../../global";
 

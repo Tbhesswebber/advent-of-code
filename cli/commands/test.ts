@@ -5,8 +5,8 @@ import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
 import { AoC } from "../api";
-import { dayArgument } from "../arguments";
-import { DECEMBER } from "../constants";
+import { dayArgument } from "../libs/arguments";
+import { DECEMBER } from "../libs/constants";
 import { getFolderContents } from "../libs/fs";
 import { InputError } from "../libs/oops/input-error";
 import { getTestInputPath } from "../libs/output";
@@ -15,7 +15,7 @@ import {
   inputFileNameOption,
   partOption,
   yearOption,
-} from "../options";
+} from "../libs/options";
 
 import type { Optionally } from "../../global";
 
