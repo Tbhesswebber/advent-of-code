@@ -5,7 +5,7 @@ export class ChristmasError extends Error {
 
   public static readonly firstYear = 2015;
 
-  public static readonly month = 12;
+  public static readonly month = 11;
 
   public static readonly startDay = 1;
 

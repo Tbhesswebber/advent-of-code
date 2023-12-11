@@ -9,13 +9,13 @@ import { dayArgument } from "../libs/arguments";
 import { DECEMBER } from "../libs/constants";
 import { getFolderContents } from "../libs/fs";
 import { InputError } from "../libs/oops/input-error";
-import { getTestInputPath } from "../libs/output";
 import {
   dayOption,
   inputFileNameOption,
   partOption,
   yearOption,
 } from "../libs/options";
+import { getTestInputPath } from "../libs/output";
 
 import type { Optionally } from "../../global";
 
@@ -109,7 +109,7 @@ export const testCommand = new Command("test")
         logger.error(error.message);
       } else if (error instanceof Error) {
         logger.error(error.message);
-        console.error(error.stack);
+        console.error(error);
       } else {
         logger.error(
           "Something went wrong running the files with the given parameters.",
