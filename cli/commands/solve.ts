@@ -1,5 +1,4 @@
 import { exec as execCallback } from "node:child_process";
-import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
@@ -10,28 +9,17 @@ import inquirer from "inquirer";
 import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
+import { AoC } from "../api";
 import { dayArgument } from "../arguments";
-import { Part } from "../constants";
-import { jsonify } from "../libs/format";
+import { DECEMBER, Part } from "../constants";
 import { getFolderContents } from "../libs/fs";
-import {
-  getInputPath,
-  getOutputPath,
-  getResultPath,
-  getSolutionPath,
-} from "../libs/output";
-import { runner } from "../libs/runner";
+import { InputError } from "../libs/oops/input-error";
 import { dayOption, partOption, yearOption } from "../options";
 
 interface RunnerPrompt {
   day?: number;
   part?: Part;
   year?: number;
-}
-
-interface Results {
-  part1: unknown;
-  part2: unknown;
 }
 
 // eslint-disable-next-line no-underscore-dangle, @typescript-eslint/naming-convention -- mimicking the dirname global
@@ -54,7 +42,7 @@ export const solveCommand = new Command("solve")
       rawOptionCopy.day = new Date().getDate() + dayInput;
     }
 
-    const options = await inquirer.prompt<Required<RunnerPrompt>>(
+    const { year, day } = await inquirer.prompt<Required<RunnerPrompt>>(
       [
         {
           name: "year",
@@ -92,45 +80,29 @@ export const solveCommand = new Command("solve")
       rawOptionCopy,
     );
 
-    const { year } = options;
-    const dayLength = 2;
-    const day = options.day.toString().padStart(dayLength, "0");
-
-    const inputPath = getInputPath(year, day);
-    const solution1Path = getSolutionPath(year, day, Part.One);
-    const solution2Path = getSolutionPath(year, day, Part.Two);
-    const resultPath = getResultPath(year, day);
+    const api = new AoC(new Date(year, DECEMBER, day));
 
     try {
-      const [result1, result2] = await Promise.all([
-        runner(inputPath, solution1Path),
-        runner(inputPath, solution2Path),
-      ]);
+      await Promise.all([api.run(Part.One), api.run(Part.One)]);
 
-      let results: Results;
+      await api.saveResults();
 
-      try {
-        results = await import(resultPath).then(
-          (module: { default: Results }) => module.default,
-        );
-      } catch {
-        results = { part1: null, part2: null };
-      }
-
-      results.part1 = result1;
-      results.part2 = result2;
-      await writeFile(resultPath, jsonify(results));
-
-      await exec(`git add ${getOutputPath(year, day)}`, { cwd: __dirname });
+      await exec(`git add ${api.folderPath}`, { cwd: __dirname });
       await exec(
         `git commit -m "solve(${year}): adds basic solution for day ${day}"`,
         { cwd: __dirname },
       );
     } catch (error) {
-      logger.error(
-        "Something went wrong running the files with the given parameters.\n",
-      );
-
-      logger.error(error);
+      if (error instanceof InputError) {
+        logger.error(error.message);
+      } else if (error instanceof Error) {
+        logger.error(error.message);
+        console.error(error.stack);
+      } else {
+        logger.error(
+          "Something went wrong running the files with the given parameters.",
+        );
+        logger.error(error);
+      }
     }
   });

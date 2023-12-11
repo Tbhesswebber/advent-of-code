@@ -1,11 +1,10 @@
-import { exec } from "node:child_process";
-import { mkdir, readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 import { ONE, ZERO } from "@lib/constants";
 
 import { Part } from "../constants";
 import { getProblemInput } from "../libs/aoc";
-import { openBrowser } from "../libs/exec";
+import { jsonify } from "../libs/format";
 import { writeFileIfNotExists } from "../libs/fs";
 import { ChristmasError } from "../libs/oops/christmas-error";
 import { InputError } from "../libs/oops/input-error";
@@ -23,7 +22,6 @@ import {
 } from "../templates";
 
 import type { SolutionModule } from "../../global";
-import type { ChildProcess } from "node:child_process";
 
 interface Config<TShouldFetch extends boolean = false> {
   fetch?: TShouldFetch extends true ? boolean : never;
@@ -131,16 +129,10 @@ export class AoC {
     return this.testInputPath;
   }
 
-  openIde(command?: string): ChildProcess {
-    return exec(`${command ?? this.ideCommand} ${this.part1SolutionPath}`);
-  }
-
-  openProblemSite(): ChildProcess {
-    return openBrowser(`https://adventofcode.com/${this.year}/day/${this.day}`);
-  }
-
-  async run(part: Part, inputPath: string): Promise<number | null> {
-    const rawValues = await readFile(inputPath, { encoding: "utf8" });
+  async run(part: Part, inputPath?: string): Promise<number | null> {
+    const rawValues = await readFile(inputPath ?? this.inputPath, {
+      encoding: "utf8",
+    });
     const values = rawValues.split("\n");
 
     if (values.length === ONE && values[ZERO].length === ZERO) {
@@ -163,6 +155,10 @@ export class AoC {
     this.results[part] = solution(transform(values));
 
     return this.results[part] ?? null;
+  }
+
+  async saveResults(): Promise<void> {
+    await writeFile(this.resultPath, jsonify(this.results));
   }
 
   async setupFileStructure({ fetch, force }: Config<true> = {}): Promise<void> {

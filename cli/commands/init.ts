@@ -7,6 +7,7 @@ import { logger } from "@lib/logger";
 import { AoC } from "../api";
 import { dayArgument } from "../arguments";
 import { DECEMBER } from "../constants";
+import { exec, openBrowser } from "../libs/exec";
 import { getFolderContents } from "../libs/fs";
 import { dayOption, forceOption, yearOption } from "../options";
 
@@ -86,6 +87,10 @@ export const initCommand = new Command("init")
       fetch: shouldGetInput,
     });
 
+    exec(`code ${api.part1SolutionPath}`).catch(() => {
+      logger.error("An error occurred opening the solution file in VSCode");
+    });
+
     logger.frame(
       `Check out the problem at: ${api.problemUrl}
 Get your input at: ${api.inputUrl}`,
@@ -101,8 +106,6 @@ Get your input at: ${api.inputUrl}`,
     ]);
 
     if (shouldOpen) {
-      api.openProblemSite();
+      await openBrowser(api.problemUrl);
     }
-
-    api.openIde();
   });
