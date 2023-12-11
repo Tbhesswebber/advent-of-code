@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign -- linked list operations can require reassign */
 
-interface Node<T> {
+export interface Node<T> {
   next: Node<T> | null;
   value: T;
 }
