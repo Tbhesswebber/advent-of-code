@@ -2,19 +2,19 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 import { ONE, ZERO } from "@lib/constants";
 
+import { jsonify } from "../../lib/format";
 import { getProblemInput } from "../libs/aoc";
 import { Part } from "../libs/constants";
-import { jsonify } from "../libs/format";
-import { writeFileIfNotExists } from "../libs/fs";
-import { ChristmasError } from "../libs/oops/christmas-error";
-import { InputError } from "../libs/oops/input-error";
+import { writeFileIfNotExists } from "../libs/node/fs";
 import {
   getInputPath,
   getOutputPath,
   getResultPath,
   getSolutionPath,
   getTestInputPath,
-} from "../libs/output";
+} from "../libs/node/path";
+import { ChristmasError } from "../libs/oops/christmas-error";
+import { InputError } from "../libs/oops/input-error";
 import {
   emptyFileTemplate,
   emptyJsonFileTemplate,

@@ -1,8 +1,8 @@
 import { resolve } from "node:path";
 
-import { OUTPUT_PATH } from "./constants";
+import { OUTPUT_PATH } from "../constants";
 
-import type { Part } from "./constants";
+import type { Part } from "../constants";
 
 export function getOutputPath(
   year: number | string,

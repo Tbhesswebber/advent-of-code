@@ -5,12 +5,12 @@ import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
 import { AoC } from "../api";
-import { dayArgument } from "../libs/arguments";
 import { DECEMBER } from "../libs/constants";
-import { exec, openBrowser } from "../libs/exec";
-import { getFolderContents } from "../libs/fs";
+import { dayArgument } from "../libs/inquisitor/arguments";
+import { dayOption, forceOption, yearOption } from "../libs/inquisitor/options";
+import { exec, openBrowser } from "../libs/node/child-process";
+import { getFolderContents } from "../libs/node/fs";
 import { ChristmasError } from "../libs/oops/christmas-error";
-import { dayOption, forceOption, yearOption } from "../libs/options";
 
 interface InitPrompt {
   day?: number;

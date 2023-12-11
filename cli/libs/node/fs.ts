@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 import chalk from "chalk";
 
-import { OUTPUT_PATH } from "./constants";
+import { OUTPUT_PATH } from "../constants";
 
 export async function writeFileIfNotExists(
   path: string,

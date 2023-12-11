@@ -5,18 +5,18 @@ import { ONE, ZERO } from "@lib/constants";
 import { logger } from "@lib/logger";
 
 import { AoC } from "../api";
-import { dayArgument } from "../libs/arguments";
 import { DECEMBER } from "../libs/constants";
-import { getFolderContents } from "../libs/fs";
-import { ChristmasError } from "../libs/oops/christmas-error";
-import { InputError } from "../libs/oops/input-error";
+import { dayArgument } from "../libs/inquisitor/arguments";
 import {
   dayOption,
   inputFileNameOption,
   partOption,
   yearOption,
-} from "../libs/options";
-import { getTestInputPath } from "../libs/output";
+} from "../libs/inquisitor/options";
+import { getFolderContents } from "../libs/node/fs";
+import { getTestInputPath } from "../libs/node/path";
+import { ChristmasError } from "../libs/oops/christmas-error";
+import { InputError } from "../libs/oops/input-error";
 
 import type { Optionally } from "../../global";
 
