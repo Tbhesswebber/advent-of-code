@@ -8,12 +8,18 @@ import { dayArgument } from "../arguments";
 import { getFolderContents } from "../libs/fs";
 import { getSolutionPath, getTestInputPath } from "../libs/output";
 import { runner } from "../libs/runner";
-import { dayOption, partOption, yearOption } from "../options";
+import {
+  dayOption,
+  inputFileNameOption,
+  partOption,
+  yearOption,
+} from "../options";
 
 type Part = 1 | 2;
 
 interface RunnerPrompt {
   day?: number;
+  inputFile?: string;
   part?: Part;
   year?: number;
 }
@@ -26,6 +32,7 @@ export const testCommand = new Command("test")
   .addOption(yearOption)
   .addOption(dayOption)
   .addOption(partOption)
+  .addOption(inputFileNameOption)
   .addArgument(dayArgument)
   .action(async (dayInput: number | undefined, rawOptions: RunnerPrompt) => {
     const rawOptionCopy = { ...rawOptions };
@@ -82,11 +89,11 @@ export const testCommand = new Command("test")
       rawOptionCopy,
     );
 
-    const { year, part } = options;
+    const { year, part, inputFile } = options;
     const dayLength = 2;
     const day = options.day.toString().padStart(dayLength, "0");
 
-    const inputPath = getTestInputPath(year, day);
+    const inputPath = getTestInputPath(year, day, inputFile);
     const solutionPath = getSolutionPath(year, day, part);
 
     try {

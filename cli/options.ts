@@ -21,3 +21,8 @@ export const forceOption = new Option(
   "-f, --force",
   "whether or not to force the operation",
 );
+
+export const inputFileNameOption = new Option(
+  "-i, --inputFile <string>",
+  "the input file name to use - must be within the directory for that day",
+);

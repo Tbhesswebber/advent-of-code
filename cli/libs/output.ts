@@ -16,18 +16,26 @@ export function getOutputPath(
   );
 }
 
+const textExtension = /\.txt$/;
+
 export function getInputPath(
   year: number | string,
   day: number | string,
+  fileName = "input.txt",
 ): string {
-  return `${getOutputPath(year, day)}/input.txt`;
+  return `${getOutputPath(year, day)}/${
+    textExtension.test(fileName) ? fileName : `${fileName}.txt`
+  }`;
 }
 
 export function getTestInputPath(
   year: number | string,
   day: number | string,
+  fileName = "testInput.txt",
 ): string {
-  return `${getOutputPath(year, day)}/testInput.txt`;
+  return `${getOutputPath(year, day)}/${
+    textExtension.test(fileName) ? fileName : `${fileName}.txt`
+  }`;
 }
 
 export function getSolutionPath(
