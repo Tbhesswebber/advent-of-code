@@ -13,6 +13,7 @@ import { AoC } from "../api";
 import { dayArgument } from "../libs/arguments";
 import { DECEMBER, Part } from "../libs/constants";
 import { getFolderContents } from "../libs/fs";
+import { ChristmasError } from "../libs/oops/christmas-error";
 import { InputError } from "../libs/oops/input-error";
 import { dayOption, partOption, yearOption } from "../libs/options";
 
@@ -80,9 +81,8 @@ export const solveCommand = new Command("solve")
       rawOptionCopy,
     );
 
-    const api = new AoC(new Date(year, DECEMBER, day));
-
     try {
+      const api = new AoC(new Date(year, DECEMBER, day));
       await Promise.all([api.run(Part.One), api.run(Part.One)]);
 
       await api.saveResults();
@@ -93,7 +93,9 @@ export const solveCommand = new Command("solve")
         { cwd: __dirname },
       );
     } catch (error) {
-      if (error instanceof InputError) {
+      if (error instanceof ChristmasError) {
+        logger.error(error.message);
+      } else if (error instanceof InputError) {
         logger.error(error.message);
       } else if (error instanceof Error) {
         logger.error(error.message);

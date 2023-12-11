@@ -8,6 +8,7 @@ import { AoC } from "../api";
 import { dayArgument } from "../libs/arguments";
 import { DECEMBER } from "../libs/constants";
 import { getFolderContents } from "../libs/fs";
+import { ChristmasError } from "../libs/oops/christmas-error";
 import { InputError } from "../libs/oops/input-error";
 import { dayOption, partOption, yearOption } from "../libs/options";
 
@@ -80,15 +81,18 @@ export const runCommand = new Command("run")
       ],
       rawOptionCopy,
     );
-    const api = new AoC(new Date(year, DECEMBER, day));
-
-    const { inputPath } = api;
 
     try {
+      const api = new AoC(new Date(year, DECEMBER, day));
+
+      const { inputPath } = api;
+
       const result = await api.run(part, inputPath);
       logger.frame(`Result: ${result}`);
     } catch (error) {
-      if (error instanceof InputError) {
+      if (error instanceof ChristmasError) {
+        logger.error(error.message);
+      } else if (error instanceof InputError) {
         logger.error(error.message);
       } else if (error instanceof Error) {
         logger.error(error.message);

@@ -9,6 +9,7 @@ import { dayArgument } from "../libs/arguments";
 import { DECEMBER } from "../libs/constants";
 import { exec, openBrowser } from "../libs/exec";
 import { getFolderContents } from "../libs/fs";
+import { ChristmasError } from "../libs/oops/christmas-error";
 import { dayOption, forceOption, yearOption } from "../libs/options";
 
 interface InitPrompt {
@@ -80,32 +81,40 @@ export const initCommand = new Command("init")
       rawOptionCopy,
     );
 
-    const api = new AoC(new Date(year, DECEMBER, day));
+    try {
+      const api = new AoC(new Date(year, DECEMBER, day));
 
-    await api.setupFileStructure({
-      force: rawOptions.force,
-      fetch: shouldGetInput,
-    });
+      await api.setupFileStructure({
+        force: rawOptions.force,
+        fetch: shouldGetInput,
+      });
 
-    exec(`code ${api.part1SolutionPath}`).catch(() => {
-      logger.error("An error occurred opening the solution file in VSCode");
-    });
+      exec(`code ${api.part1SolutionPath}`).catch(() => {
+        logger.error("An error occurred opening the solution file in VSCode");
+      });
 
-    logger.frame(
-      `Check out the problem at: ${api.problemUrl}
+      logger.frame(
+        `Check out the problem at: ${api.problemUrl}
 Get your input at: ${api.inputUrl}`,
-    );
+      );
 
-    const { shouldOpen } = await inquirer.prompt<{ shouldOpen: boolean }>([
-      {
-        name: "shouldOpen",
-        default: false,
-        type: "confirm",
-        message: "Would you like the problem to be opened in your browser?",
-      },
-    ]);
+      const { shouldOpen } = await inquirer.prompt<{ shouldOpen: boolean }>([
+        {
+          name: "shouldOpen",
+          default: false,
+          type: "confirm",
+          message: "Would you like the problem to be opened in your browser?",
+        },
+      ]);
 
-    if (shouldOpen) {
-      await openBrowser(api.problemUrl);
+      if (shouldOpen) {
+        await openBrowser(api.problemUrl);
+      }
+    } catch (error) {
+      if (error instanceof ChristmasError) {
+        logger.error(error.message);
+      } else {
+        logger.error(error);
+      }
     }
   });
