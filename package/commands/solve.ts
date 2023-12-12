@@ -8,10 +8,11 @@ import { Command } from "commander";
 import { logger } from "@lib/logger";
 
 import { AoC } from "../api";
-import { DECEMBER, Part } from "../libs/constants";
+import { DECEMBER, Part, RUNTIME_BEFORE_IDLE } from "../libs/constants";
 import { dayArgument } from "../libs/inquisitor/arguments";
 import { dayOption, partOption, yearOption } from "../libs/inquisitor/options";
 import { datePrompts } from "../libs/inquisitor/prompts";
+import { report } from "../libs/node/child-process";
 import { ChristmasError } from "../libs/oops/christmas-error";
 import { InputError } from "../libs/oops/input-error";
 
@@ -35,6 +36,7 @@ export const solveCommand = new Command("solve")
   .addOption(partOption)
   .addArgument(dayArgument)
   .action(async (dayInput: number | undefined, rawOptions: RunnerPrompt) => {
+    const startStamp = new Date();
     const rawOptionCopy = { ...rawOptions };
     if (dayInput !== undefined) {
       rawOptionCopy.year = new Date().getFullYear();
@@ -54,6 +56,16 @@ export const solveCommand = new Command("solve")
         `git commit -m "solve(${year}): adds basic solution for day ${day}"`,
         { cwd: __dirname },
       );
+
+      if (Date.now() - startStamp.getTime() > RUNTIME_BEFORE_IDLE) {
+        await report([
+          `AoC ${year} day ${day} is solved!`,
+          "The results have been processed and solution saved to git!",
+          "Don't forget to push your progress!",
+          "",
+          "Merry Christmas!",
+        ]);
+      }
     } catch (error) {
       if (error instanceof ChristmasError) {
         logger.error(error.message);

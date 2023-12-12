@@ -4,10 +4,11 @@ import inquirer from "inquirer";
 import { logger } from "@lib/logger";
 
 import { AoC } from "../api";
-import { DECEMBER } from "../libs/constants";
+import { DECEMBER, RUNTIME_BEFORE_IDLE } from "../libs/constants";
 import { dayArgument } from "../libs/inquisitor/arguments";
 import { dayOption, partOption, yearOption } from "../libs/inquisitor/options";
 import { datePrompts } from "../libs/inquisitor/prompts";
+import { report } from "../libs/node/child-process";
 import { ChristmasError } from "../libs/oops/christmas-error";
 import { InputError } from "../libs/oops/input-error";
 
@@ -27,6 +28,7 @@ export const runCommand = new Command("run")
   .addOption(partOption)
   .addArgument(dayArgument)
   .action(async (dayInput: number | undefined, rawOptions: RunnerPrompt) => {
+    const startStamp = new Date();
     const rawOptionCopy = { ...rawOptions };
     if (dayInput !== undefined) {
       rawOptionCopy.year = new Date().getFullYear();
@@ -58,6 +60,13 @@ export const runCommand = new Command("run")
 
       const result = await api.run(part, inputPath);
       logger.frame(`Result: ${result}`);
+
+      if (Date.now() - startStamp.getTime() > RUNTIME_BEFORE_IDLE) {
+        await report([
+          `AoC ${year} day ${day}, part ${part} has completed!`,
+          `The result is ${result}`,
+        ]);
+      }
     } catch (error) {
       if (error instanceof ChristmasError) {
         logger.error(error.message);

@@ -17,3 +17,14 @@ export function openBrowser(
   }
   return exec(`xdg-open ${url}`);
 }
+
+// eslint-disable-next-line @typescript-eslint/promise-function-async -- we're directly returning the promise, which is a node-wrapped thing
+export function report(
+  message: string[] | string,
+): PromiseWithChild<{ stderr: string; stdout: string }> {
+  return exec(
+    `notify-send "${
+      typeof message === "string" ? message : message.join('" "')
+    }"`,
+  );
+}
