@@ -2,6 +2,7 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 
 import { ONE, ZERO } from "./constants";
+import { formatToHumanNumber } from "./format";
 
 const ui = new inquirer.ui.BottomBar();
 
@@ -98,7 +99,56 @@ function makeProgressLogger(total: number): (value?: number) => void {
   };
 }
 
+interface Count {
+  (id?: string): void;
+  <T>(value: T, id?: string): T;
+}
+
+function countFactory(): Count {
+  const idCountMap = new Map<string, number>();
+  function updateBottomBar() {
+    ui.updateBottomBar(
+      [...idCountMap.entries()]
+        .map(([key, count]) => `${key}: ${formatToHumanNumber(count)}`)
+        .join(" --- "),
+    );
+  }
+  let lastUpdated = Date.now();
+  let timeout: NodeJS.Timeout;
+  const interval = 500;
+  return <T = undefined>(valueOrId: T, id?: string): T => {
+    if (Date.now() - lastUpdated > interval) {
+      clearTimeout(timeout);
+      updateBottomBar();
+      lastUpdated = Date.now();
+      timeout = setTimeout(updateBottomBar, interval);
+    }
+    if (valueOrId === undefined && id === undefined) {
+      idCountMap.set("default", (idCountMap.get("default") ?? ZERO) + ONE);
+      return valueOrId;
+    }
+    if (typeof valueOrId !== "string" && id === undefined) {
+      idCountMap.set("default", (idCountMap.get("default") ?? ZERO) + ONE);
+      return valueOrId;
+    }
+    if (typeof id === "string") {
+      idCountMap.set(id, (idCountMap.get(id) ?? ZERO) + ONE);
+      return valueOrId;
+    }
+    if (typeof valueOrId === "string") {
+      idCountMap.set(valueOrId, (idCountMap.get(valueOrId) ?? ZERO) + ONE);
+      return valueOrId;
+    }
+    throw new Error(
+      `A count condition is broken. valueOrId = ${JSON.stringify(
+        valueOrId,
+      )}, id = ${id}`,
+    );
+  };
+}
+
 export const logger = {
+  count: countFactory(),
   log,
   error,
   frame,
