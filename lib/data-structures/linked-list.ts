@@ -6,7 +6,6 @@ export interface Node<T> {
 }
 
 export class LinkedList<T> {
-  // building on an array because it will be faster
   private headNode: Node<T> | null = null;
 
   private tailNode: Node<T> | null = null;
@@ -17,6 +16,15 @@ export class LinkedList<T> {
 
   get tail(): Node<T> | null {
     return this.tailNode;
+  }
+
+  static fromArray<T>(nodes: T[]): LinkedList<T> {
+    const list = new LinkedList<T>();
+    nodes.forEach((value) => {
+      list.insert(value);
+    });
+
+    return list;
   }
 
   insert(value: T): this {
