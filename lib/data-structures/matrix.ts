@@ -47,8 +47,46 @@ export class Matrix<T> {
     }
   }
 
+  forEachColumn(
+    callback: (column: T[], index: number, all: T[][]) => void,
+  ): void {
+    const columns = this.getColumns();
+
+    for (let index = ZERO; index < this.data[ZERO].length; index += ONE) {
+      const column = this.data.map((row) => row[index]);
+      callback(column, index, columns);
+    }
+  }
+
+  forEachRow(callback: (row: T[], index: number, all: T[][]) => void): void {
+    this.data.forEach((row, index, all) => {
+      callback(row, index, all);
+    });
+  }
+
   get(row: number, column: number): T {
     return this.data[row][column];
+  }
+
+  getColumn(column: number): T[] {
+    return this.data.map((row) => row[column]);
+  }
+
+  getColumns(): T[][] {
+    const columns: T[][] = [];
+    for (let index = ZERO; index < this.data[ZERO].length; index += ONE) {
+      const column = this.data.map((row) => row[index]);
+      columns.push(column);
+    }
+    return columns;
+  }
+
+  getRow(row: number): T[] {
+    return this.data[row];
+  }
+
+  getRows(): T[][] {
+    return this.data;
   }
 
   indexOf(predicate: IterationCallback<T, boolean>): Coordinate {
@@ -127,7 +165,7 @@ export class Matrix<T> {
     return new Matrix(pseudoMatrix);
   }
 
-  rowReduce<TResult = T[]>(
+  reduceRow<TResult = T[]>(
     callback: (
       aggregate: TResult,
       current: T[],
