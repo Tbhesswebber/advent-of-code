@@ -114,14 +114,14 @@ function countFactory(): Count {
     );
   }
   let lastUpdated = Date.now();
-  let timeout: NodeJS.Timeout;
-  const interval = 500;
+  // let timeout: NodeJS.Timeout;
+  const interval = 1000;
   return <T = undefined>(valueOrId: T, id?: string): T => {
     if (Date.now() - lastUpdated > interval) {
-      clearTimeout(timeout);
+      // clearTimeout(timeout);
       updateBottomBar();
       lastUpdated = Date.now();
-      timeout = setTimeout(updateBottomBar, interval);
+      // timeout = setTimeout(updateBottomBar, interval);
     }
     if (valueOrId === undefined && id === undefined) {
       idCountMap.set("default", (idCountMap.get("default") ?? ZERO) + ONE);

@@ -77,7 +77,7 @@ export const testCommand = new Command("test")
       logger.frame(`Result: ${result}`);
 
       if (Date.now() - startStamp.getTime() > RUNTIME_BEFORE_IDLE) {
-        await report([
+        report([
           `AoC ${year} day ${day}, part ${part} has completed!`,
           `The result is ${result}`,
         ]);
@@ -95,6 +95,12 @@ export const testCommand = new Command("test")
           "Something went wrong running the files with the given parameters.",
         );
         logger.error(error);
+      }
+      if (Date.now() - startStamp.getTime() > RUNTIME_BEFORE_IDLE) {
+        report([
+          `Christmas is in danger!`,
+          `AoC ${year} day ${day}, part ${part} has errored!`,
+        ]);
       }
     }
   });

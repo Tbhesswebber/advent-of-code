@@ -1,8 +1,3 @@
-import { exec as execCallback } from "node:child_process";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
-
 import { Command } from "commander";
 
 import { logger } from "@lib/logger";
@@ -12,7 +7,7 @@ import { DECEMBER, Part, RUNTIME_BEFORE_IDLE } from "../libs/constants";
 import { dayArgument } from "../libs/inquisitor/arguments";
 import { dayOption, partOption, yearOption } from "../libs/inquisitor/options";
 import { datePrompts } from "../libs/inquisitor/prompts";
-import { report } from "../libs/node/child-process";
+import { exec, report } from "../libs/node/child-process";
 import { ChristmasError } from "../libs/oops/christmas-error";
 import { InputError } from "../libs/oops/input-error";
 
@@ -22,9 +17,8 @@ interface RunnerPrompt {
   year?: number;
 }
 
-// eslint-disable-next-line no-underscore-dangle, @typescript-eslint/naming-convention -- mimicking the dirname global
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const exec = promisify(execCallback);
+// eslint-disable-next-line no-underscore-dangle, @typescript-eslint/naming-convention -- using Bun build-in to approximate the node equivalent
+const __dirname = import.meta.dir;
 
 export const solveCommand = new Command("solve")
   .version("1.0.0")
@@ -51,14 +45,18 @@ export const solveCommand = new Command("solve")
 
       await api.saveResults();
 
-      await exec(`git add ${api.folderPath}`, { cwd: __dirname });
-      await exec(
-        `git commit -m "solve(${year}): adds basic solution for day ${day}"`,
+      exec(["git", "add", api.folderPath], { cwd: __dirname, sync: true });
+      exec(
+        [
+          `git`,
+          `commit`,
+          `-m "solve(${year}): adds basic solution for day ${day}"`,
+        ],
         { cwd: __dirname },
       );
 
       if (Date.now() - startStamp.getTime() > RUNTIME_BEFORE_IDLE) {
-        await report([
+        report([
           `AoC ${year} day ${day} is solved!`,
           "The results have been processed and solution saved to git!",
           "Don't forget to push your progress!",
@@ -79,6 +77,12 @@ export const solveCommand = new Command("solve")
           "Something went wrong running the files with the given parameters.",
         );
         logger.error(error);
+      }
+      if (Date.now() - startStamp.getTime() > RUNTIME_BEFORE_IDLE) {
+        report([
+          `Christmas is in danger!`,
+          `AoC ${year} day ${day} has errored!`,
+        ]);
       }
     }
   });

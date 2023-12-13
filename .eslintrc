@@ -4,6 +4,14 @@
     "@tbhesswebber/eslint-config/typescript",
     "@tbhesswebber/eslint-config/format"
   ],
+  "settings": {
+    "import/resolver": {
+      "typescript-bun": {
+        "project": true,
+        "alwaysTryTypes": true
+      }
+    }
+  },
   "rules": {
     "no-console": "off",
     "unicorn/no-array-reduce": "off",

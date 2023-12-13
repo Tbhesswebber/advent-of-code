@@ -17,6 +17,9 @@ dependencies:
   '@typescript-eslint/parser':
     specifier: ^6.0.0
     version: 6.13.1(eslint@8.55.0)(typescript@5.3.2)
+  bun:
+    specifier: ^1.0.17
+    version: 1.0.17
   chalk:
     specifier: ^5.3.0
     version: 5.3.0
@@ -85,9 +88,15 @@ devDependencies:
   '@types/node':
     specifier: ^20.10.2
     version: 20.10.2
+  bun-types:
+    specifier: ^1.0.17
+    version: 1.0.17
   eslint-import-resolver-typescript:
     specifier: ^3.6.1
     version: 3.6.1(@typescript-eslint/parser@6.13.1)(eslint-plugin-import@2.29.0)(eslint@8.55.0)
+  eslint-import-resolver-typescript-bun:
+    specifier: ^0.0.67
+    version: 0.0.67(@typescript-eslint/parser@6.13.1)(bun-types@1.0.17)(eslint-plugin-import@2.29.0)(eslint@8.55.0)
   tsx:
     specifier: ^4.6.1
     version: 4.6.1
@@ -603,6 +612,54 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
+
+  /@oven/bun-darwin-aarch64@1.0.17:
+    resolution: {integrity: sha512-aI9YuQPuXlkfELnTBEyFuwJzFtIwiVXmLgOHDjJbOg+WojpwR1DinhiyQp1T9ru/xMbZb2kwGleLlaha8LZmVQ==}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@oven/bun-darwin-x64-baseline@1.0.17:
+    resolution: {integrity: sha512-yFsU+r6PT8Ow2Ul/094+ypkvPYspmkSc6m+rXFa4ghH8KoQNpcr4jGn43FqI4qyYKxG4Jl9ua4NdEC5qBxUZow==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@oven/bun-darwin-x64@1.0.17:
+    resolution: {integrity: sha512-cq5VQiygKj0NFU9xH5lYDR7wwkuFAoVQTPC4da9jW7wCf7WCUsOdZoUUiRSr8t1/H1Sh0QAc44zAcgItixtBmg==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@oven/bun-linux-aarch64@1.0.17:
+    resolution: {integrity: sha512-9EPdqSYe+H6vvwl1wTSGefIgO7v7nsEugMh2xlnjZb/ciQNkRdnTdz0x7dzDcXb1i9sNmWc2Lk5A+75ea6ntCA==}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@oven/bun-linux-x64-baseline@1.0.17:
+    resolution: {integrity: sha512-wkmyD/F7fx3PGNtsUVQlRyEapFDEjcaWTHvJnV0a3ZL1morraiAHmSaNZOSJYbpTaENcf2eHkD4vrJ7brmXlCg==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@oven/bun-linux-x64@1.0.17:
+    resolution: {integrity: sha512-uwk9KT70dcBDay0zlchM+X5AOyc8Xm4J/E5bQyQjs+nhIrFO9pSd5e42OZ1AZGMWnLngRgJpERgTVlFsSTtBdg==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
 
   /@pkgr/utils@2.4.2:
     resolution: {integrity: sha512-POgTXhjrTfbTV63DiFXav4lBHiICLKKwDeaKn9Nphwj7WH6m0hMMCaJkMyRWjgtPFyRKRVoMXXjczsTQRDEhYw==}
@@ -1174,6 +1231,25 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
+  /bun-types@1.0.17:
+    resolution: {integrity: sha512-5dj7Pi0qmZB1gaY2LmtKKrKixgnxi/qDcawsA4ttWQhT0jWyecSEB8la7c6DIgrMkJciixAtyLLe3aj0SJaRAw==}
+    dev: true
+
+  /bun@1.0.17:
+    resolution: {integrity: sha512-dZScNmfDvMRSpGSL7hh1LddsjzIJFSNQlgh9D+uNV633HkddIMCpbXGfbKGqPB1ai7DORjeXUtjSN+o4+TIzTA==}
+    cpu: [arm64, x64]
+    os: [darwin, linux]
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      '@oven/bun-darwin-aarch64': 1.0.17
+      '@oven/bun-darwin-x64': 1.0.17
+      '@oven/bun-darwin-x64-baseline': 1.0.17
+      '@oven/bun-linux-aarch64': 1.0.17
+      '@oven/bun-linux-x64': 1.0.17
+      '@oven/bun-linux-x64-baseline': 1.0.17
+    dev: false
+
   /bundle-name@3.0.0:
     resolution: {integrity: sha512-PKA4BeSvBpQKQ8iPOGCSiell+N8P+Tf1DlwqmYhpe2gAhKPHn8EYOxVT+ShuGmhg8lN8XiSlS80yiExKXrURlw==}
     engines: {node: '>=12'}
@@ -1723,6 +1799,23 @@ packages:
       resolve: 1.22.8
     transitivePeerDependencies:
       - supports-color
+
+  /eslint-import-resolver-typescript-bun@0.0.67(@typescript-eslint/parser@6.13.1)(bun-types@1.0.17)(eslint-plugin-import@2.29.0)(eslint@8.55.0):
+    resolution: {integrity: sha512-dxuQzsaMY7GwGYa1sxClqGD8wg0XZo7S1ZAStIJtad/tRd4A9VSTshFGLcsmBPf0jG51W/1Zs8iR4snxB4DQcg==}
+    peerDependencies:
+      bun-types: ^0.8.1
+    dependencies:
+      bun-types: 1.0.17
+      debug: 4.3.4
+      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@6.13.1)(eslint-plugin-import@2.29.0)(eslint@8.55.0)
+    transitivePeerDependencies:
+      - '@typescript-eslint/parser'
+      - eslint
+      - eslint-import-resolver-node
+      - eslint-import-resolver-webpack
+      - eslint-plugin-import
+      - supports-color
+    dev: true
 
   /eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@6.13.1)(eslint-plugin-import@2.29.0)(eslint@8.55.0):
     resolution: {integrity: sha512-xgdptdoi5W3niYeuQxKmzVDTATvLYqhpwmykwsh7f6HIOStGWEIL9iqZgQDF9u9OEzrRwR8no5q2VT+bjAujTg==}

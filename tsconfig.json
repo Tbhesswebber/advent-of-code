@@ -19,7 +19,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    "types": ["node"],
+    "types": ["bun-types"],
     "paths": {
       "@lib/*": ["./lib/*"]
     }

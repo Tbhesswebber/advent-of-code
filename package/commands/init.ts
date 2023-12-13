@@ -1,3 +1,4 @@
+import { openInEditor } from "bun";
 import { Command } from "commander";
 import inquirer from "inquirer";
 
@@ -8,7 +9,7 @@ import { DECEMBER } from "../libs/constants";
 import { dayArgument } from "../libs/inquisitor/arguments";
 import { dayOption, forceOption, yearOption } from "../libs/inquisitor/options";
 import { datePrompts } from "../libs/inquisitor/prompts";
-import { exec, openBrowser } from "../libs/node/child-process";
+import { openBrowser } from "../libs/node/child-process";
 import { ChristmasError } from "../libs/oops/christmas-error";
 
 import type { DatePrompt } from "../libs/inquisitor/prompts";
@@ -56,9 +57,7 @@ export const initCommand = new Command("init")
         fetch: shouldGetInput,
       });
 
-      exec(`code ${api.part1SolutionPath}`).catch(() => {
-        logger.error("An error occurred opening the solution file in VSCode");
-      });
+      openInEditor(api.part1SolutionPath);
 
       logger.frame(
         `Check out the problem at: ${api.problemUrl}
@@ -75,7 +74,7 @@ Get your input at: ${api.inputUrl}`,
       ]);
 
       if (shouldOpen) {
-        await openBrowser(api.problemUrl);
+        openBrowser(api.problemUrl);
       }
     } catch (error) {
       if (error instanceof ChristmasError) {
