@@ -12,13 +12,42 @@ type IterationCallback<T, TResult> = (
   data: Matrix<T>,
 ) => TResult;
 
-type MatrixData<T> = T[][];
+type Indexable<T> = Iterable<T> & Record<number, T>;
+export type MatrixData<T> = T[][];
 
 export class Matrix<T> {
   protected data: MatrixData<T>;
 
-  constructor(data: MatrixData<T>) {
-    this.data = data;
+  private asString: string | undefined = undefined;
+
+  private rawData: Indexable<T>[];
+
+  private shouldCache: boolean;
+
+  constructor(
+    data: Indexable<T>[],
+    { shouldCache }: { shouldCache?: boolean } = {},
+  ) {
+    this.shouldCache = shouldCache ?? true;
+    this.rawData = data;
+    this.data = this.shouldCache
+      ? new Proxy(
+          this.rawData.map((row) =>
+            Matrix.rowProxy([...row], this.resetCachedValues.bind(this)),
+          ),
+          {
+            set: (target, property, nextValue: T[], receiver) => {
+              this.resetCachedValues();
+              return Reflect.set(
+                target,
+                property,
+                Matrix.rowProxy(nextValue, this.resetCachedValues.bind(this)),
+                receiver,
+              );
+            },
+          },
+        )
+      : this.rawData.map((row) => [...row]);
   }
 
   get columns(): number {
@@ -31,6 +60,15 @@ export class Matrix<T> {
 
   get size(): number {
     return this.columns * this.rows;
+  }
+
+  private static rowProxy<T>(row: T[], onSet: () => void): T[] {
+    return new Proxy(row, {
+      set: (target, property, nextValue: T, receiver) => {
+        onSet();
+        return Reflect.set(target, property, nextValue, receiver);
+      },
+    });
   }
 
   forEach(callback: IterationCallback<T, void>): void {
@@ -200,7 +238,7 @@ export class Matrix<T> {
    * @override
    */
   toString(pretty?: boolean): string {
-    if (pretty === true)
+    if (pretty === true) {
       return this.data
         .flatMap((row, index) => {
           const values = row
@@ -223,7 +261,15 @@ export class Matrix<T> {
           return [values];
         })
         .join("\n");
-    return JSON.stringify(this.data);
+    }
+
+    if (!this.shouldCache) {
+      return JSON.stringify(this.data);
+    }
+    if (this.asString === undefined) {
+      this.asString = JSON.stringify(this.data);
+    }
+    return this.asString;
   }
 
   validate(): boolean {
@@ -238,5 +284,9 @@ export class Matrix<T> {
         return false;
       }) && this.data.length === this.rows
     );
+  }
+
+  private resetCachedValues(): void {
+    this.asString = undefined;
   }
 }
