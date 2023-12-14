@@ -58,17 +58,21 @@ function* spinnerGenerator(): Generator<string, string, boolean> {
     shouldRun = yield symbols[(index += ONE) % symbols.length];
   }
 
-  return "█";
+  return chalk.white("█");
 }
 
 function makeProgressLogger(total: number): (value?: number) => void {
   const { columns } = process.stdout;
   const spinner = spinnerGenerator();
   function getProgressString(value: number): string {
-    const progressRatio = value > ZERO ? value / total : ZERO;
+    const currentValueMaxLength = 5;
+    const progressRatio = value > ZERO ? Math.min(value / total, ONE) : ZERO;
     const progressString = `${
-      spinner.next(progressRatio !== ONE).value
-    } - ${value}/${total}`;
+      spinner.next(progressRatio < ONE).value
+    } - ${formatToHumanNumber(value).padStart(
+      currentValueMaxLength,
+      " ",
+    )}/${formatToHumanNumber(total)} `;
     const emptyBracketCount = 2;
     const bracketCount =
       progressRatio < ONE / columns
@@ -81,21 +85,25 @@ function makeProgressLogger(total: number): (value?: number) => void {
     const filledColumnCount = Math.floor(progressRatio * availableColumns);
     const emptyColumnCount = availableColumns - filledColumnCount;
 
-    return `${bracketCount === emptyBracketCount ? "[" : ""}${"█".repeat(
-      filledColumnCount,
-    )}${" ".repeat(emptyColumnCount)}${
+    const progressBar = `${
+      bracketCount === emptyBracketCount ? "[" : ""
+    }${"█".repeat(filledColumnCount)}${" ".repeat(emptyColumnCount)}${
       bracketCount === ONE ? "]" : ""
-    }${progressString}`;
+    }`;
+
+    return `${chalk.white(progressBar)}${chalk.green(progressString)}`;
   }
 
   let defaultValue = ZERO;
+  let progressString: string;
 
   return (value?: number) => {
     defaultValue = value ?? defaultValue;
-    ui.updateBottomBar(
+    if (defaultValue <= total) {
       // eslint-disable-next-line no-plusplus -- inconsequential
-      chalk.white.bold(getProgressString(defaultValue++)),
-    );
+      progressString = getProgressString(defaultValue++);
+    }
+    ui.updateBottomBar(chalk.white.bold(progressString));
   };
 }
 
