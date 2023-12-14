@@ -153,6 +153,12 @@ export class Matrix<T> {
     return this;
   }
 
+  isInRange([row, column]: Coordinate): boolean {
+    return (
+      row >= ZERO && row < this.rows && column >= ZERO && column < this.columns
+    );
+  }
+
   map<TResult>(callback: IterationCallback<T, TResult>): Matrix<TResult> {
     const pseudoMatrix: MatrixData<TResult> = [];
 
@@ -178,6 +184,16 @@ export class Matrix<T> {
       (agg, current, index) => callback(agg, current, index, this),
       initial,
     );
+  }
+
+  set(row: number, column: number, value: T): void {
+    this.data[row][column] = value;
+  }
+
+  spliceRows(startRow: number, deleteCount: number, insertion: T[][]): this {
+    this.data.splice(startRow, deleteCount, ...insertion);
+
+    return this;
   }
 
   /**
