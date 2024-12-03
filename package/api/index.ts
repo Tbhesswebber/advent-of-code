@@ -154,7 +154,7 @@ export class AoC {
 
     this.results[part] = solution(transform(values));
 
-    return this.results[part] ?? null;
+    return this.results[part];
   }
 
   async saveResults(): Promise<void> {
