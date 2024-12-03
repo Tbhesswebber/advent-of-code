@@ -22,7 +22,7 @@ export async function getProblemInput(
   let page: Page | undefined;
 
   try {
-    browser = await puppeteer.launch({ headless: "new" });
+    browser = await puppeteer.launch({ headless: "shell" });
     page = await browser.newPage();
 
     await page.setCookie({
