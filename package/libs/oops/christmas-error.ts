@@ -80,8 +80,8 @@ export class ChristmasError extends Error {
     }
 
     return (
-      day < ChristmasError.endDay &&
-      day > ChristmasError.startDay &&
+      day <= ChristmasError.endDay &&
+      day >= ChristmasError.startDay &&
       month === ChristmasError.month &&
       year >= ChristmasError.firstYear
     );
