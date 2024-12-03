@@ -14,10 +14,14 @@
   },
   "rules": {
     "no-console": "off",
+    "no-restricted-syntax": "off",
     "unicorn/no-array-reduce": "off",
     "unicorn/no-array-for-each": "off",
     "unicorn/no-process-exit": "off",
     "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": ["error", { "functions": false, "typedefs": false  }]
+    "@typescript-eslint/no-use-before-define": [
+      "error",
+      { "functions": false, "typedefs": false }
+    ]
   }
 }
