@@ -133,7 +133,7 @@ export class AoC {
     const rawValues = await readFile(inputPath ?? this.inputPath, {
       encoding: "utf8",
     });
-    const values = rawValues.split("\n");
+    const values = rawValues.trim().split("\n");
 
     if (values.length === ONE && values[ZERO].length === ZERO) {
       throw new InputError(values);
