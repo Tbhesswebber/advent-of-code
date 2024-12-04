@@ -2,6 +2,7 @@ import chalk from "chalk";
 
 import { ONE, ZERO } from "@lib/constants";
 
+// [ROW, COLUMN]
 export type Coordinate = [number, number];
 
 type IterationCallback<T, TResult> = (
@@ -102,8 +103,8 @@ export class Matrix<T> {
     });
   }
 
-  get(row: number, column: number): T {
-    return this.data[row][column];
+  get(row: number, column: number): T | undefined {
+    return this.data.at(row)?.at(column);
   }
 
   getColumn(column: number): T[] {
@@ -125,6 +126,13 @@ export class Matrix<T> {
 
   getRows(): T[][] {
     return this.data;
+  }
+
+  getWindow(origin: Coordinate, width: number, height: number): Matrix<T> {
+    const data = this.data
+      .slice(origin[ZERO], origin[ZERO] + height)
+      .map((row) => row.slice(origin[ONE], origin[ONE] + width));
+    return new Matrix(data, { shouldCache: this.shouldCache });
   }
 
   indexOf(predicate: IterationCallback<T, boolean>): Coordinate {
