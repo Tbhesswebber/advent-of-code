@@ -57,13 +57,6 @@ export const initCommand = new Command("init")
         fetch: shouldGetInput,
       });
 
-      openInEditor(api.part1SolutionPath);
-
-      logger.frame(
-        `Check out the problem at: ${api.problemUrl}
-Get your input at: ${api.inputUrl}`,
-      );
-
       const { shouldOpen } = await inquirer.prompt<{ shouldOpen: boolean }>([
         {
           name: "shouldOpen",
@@ -75,7 +68,14 @@ Get your input at: ${api.inputUrl}`,
 
       if (shouldOpen) {
         openBrowser(api.problemUrl);
+      } else {
+        logger.frame(
+          `Check out the problem at: ${api.problemUrl}
+        Get your input at: ${api.inputUrl}`,
+        );
       }
+
+      openInEditor(api.part1SolutionPath);
     } catch (error) {
       if (error instanceof ChristmasError) {
         logger.error(error.message);
