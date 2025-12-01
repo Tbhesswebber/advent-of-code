@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import puppeteer from "puppeteer";
 
 import { logger } from "@lib/logger";
@@ -11,10 +12,13 @@ export async function getProblemInput(
   day: number | string,
 ): Promise<string | null> {
   const aocInputUrl = `${aocUrl}/${year}/day/${day}/input`;
-  const { AOC_SESSION, AOC_SESSION_EXPIRATION } = process.env;
+  const { AOC_SESSION } = process.env;
   let text = null;
 
-  if (AOC_SESSION === undefined || AOC_SESSION_EXPIRATION === undefined) {
+  if (AOC_SESSION === undefined) {
+    console.warn(
+      chalk.red("You don't have a valid session set in your .env file"),
+    );
     return text;
   }
 
@@ -30,7 +34,6 @@ export async function getProblemInput(
       value: AOC_SESSION,
       domain: ".adventofcode.com",
       path: "/",
-      expires: new Date(AOC_SESSION_EXPIRATION).getTime(),
       httpOnly: true,
       secure: true,
       priority: "Medium",
