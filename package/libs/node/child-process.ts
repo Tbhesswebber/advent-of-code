@@ -1,3 +1,5 @@
+import os from "node:os";
+
 import { ONE, ZERO } from "@lib/constants";
 
 import type { Subprocess, SyncSubprocess } from "bun";
@@ -34,10 +36,24 @@ export function report(
   message: string[] | string,
   { critical }: { critical?: true } = {},
 ): Subprocess {
+  const title = typeof message === "string" ? message : message[ZERO];
+  const description =
+    typeof message === "string" ? "" : message.slice(ONE).join("\n");
+
+  if (os.type() === "Darwin") {
+    return exec([
+      "terminal-notifier",
+      `--title ${title}`,
+      `--message ${description}`,
+      `--ignoreDnD ${critical}`,
+      "--sound Submarine",
+    ]);
+  }
+
   return exec([
     "notify-send",
     critical ? "--urgency critical" : "",
-    typeof message === "string" ? `"${message}"` : message[ZERO],
-    typeof message === "string" ? "" : `"${message.slice(ONE).join("\n")}"`,
+    title,
+    description,
   ]);
 }
