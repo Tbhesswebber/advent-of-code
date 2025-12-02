@@ -9,26 +9,18 @@ type DayInputs = DayInput[];
 const start = 50;
 export default function main(inputs: DayInputs): number {
   let password = ZERO;
-  const lastPosition = inputs.reduce((position, { ascending, count }) => {
-    if (ascending) {
-      const nextPosition = normalizePosition(position + count);
-      const timesCountCrossesZeroAlone = Math.floor(count / HUNDRED);
-      const timesCrossingZero =
-        position + (count % HUNDRED) > HUNDRED ? ONE : ZERO;
-      password += timesCrossingZero + timesCountCrossesZeroAlone;
-      console.log({ timesCountCrossesZeroAlone, timesCrossingZero });
-      return nextPosition;
-    }
+  inputs.reduce((position, { ascending, count }) => {
+    let nextPosition = position;
 
-    const nextPosition = normalizePosition(position - count);
-    const timesCountCrossesZeroAlone = Math.floor(count / HUNDRED);
-    const timesCrossingZero = position - (count % HUNDRED) < ZERO ? ONE : ZERO;
-    password += timesCrossingZero + timesCountCrossesZeroAlone;
-    console.log({ timesCountCrossesZeroAlone, timesCrossingZero });
+    for (let index = count; index > ZERO; index -= ONE) {
+      nextPosition = ascending ? nextPosition + ONE : nextPosition - ONE;
+      nextPosition = normalizePosition(nextPosition);
+      if (nextPosition === ZERO) password += ONE;
+    }
     return nextPosition;
   }, start);
 
-  return password + (lastPosition === ZERO ? ONE : ZERO);
+  return password;
 }
 
 export function transformInput(inputs: string[]): DayInputs {
