@@ -41,7 +41,7 @@ export const solveCommand = new Command("solve")
 
     try {
       const api = new AoC(new Date(year, DECEMBER, day));
-      await Promise.all([api.run(Part.One), api.run(Part.One)]);
+      await Promise.all([api.run(Part.One), api.run(Part.Two)]);
 
       await api.saveResults();
 
@@ -52,7 +52,7 @@ export const solveCommand = new Command("solve")
           `commit`,
           `-m "solve(${year}): adds basic solution for day ${day}"`,
         ],
-        { cwd: __dirname },
+        { cwd: __dirname, sync: true },
       );
 
       if (Date.now() - startStamp.getTime() > RUNTIME_BEFORE_IDLE) {
@@ -63,7 +63,18 @@ export const solveCommand = new Command("solve")
           "",
           "Merry Christmas!",
         ]);
+      } else {
+        logger.log(
+          [
+            `AoC ${year} day ${day} is solved!`,
+            "The results have been processed and solution saved to git!",
+            "Don't forget to push your progress!",
+            "",
+            "Merry Christmas!",
+          ].join("\n"),
+        );
       }
+      process.exit();
     } catch (error) {
       if (error instanceof ChristmasError) {
         logger.error(error.message);

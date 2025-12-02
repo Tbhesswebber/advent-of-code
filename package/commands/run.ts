@@ -67,6 +67,7 @@ export const runCommand = new Command("run")
           `The result is ${result}`,
         ]);
       }
+      process.exit();
     } catch (error) {
       if (error instanceof ChristmasError) {
         logger.error(error.message);
