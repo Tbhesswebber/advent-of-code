@@ -6,9 +6,9 @@ export interface Node<T> {
 }
 
 export class LinkedList<T> {
-  private headNode: Node<T> | null = null;
+  protected headNode: Node<T> | null = null;
 
-  private tailNode: Node<T> | null = null;
+  protected tailNode: Node<T> | null = null;
 
   get head(): Node<T> | null {
     return this.headNode;
@@ -27,13 +27,17 @@ export class LinkedList<T> {
     return list;
   }
 
+  static node<T>(value: T, next: Node<T> | null = null): Node<T> {
+    return { value, next };
+  }
+
   insert(value: T): this {
     let insertion: Node<T> | null;
     if (!this.headNode) {
       this.insertHead(value);
       insertion = this.head;
     }
-    insertion ??= node(value);
+    insertion ??= LinkedList.node(value);
 
     if (this.tailNode) {
       this.tailNode.next = insertion;
@@ -45,14 +49,14 @@ export class LinkedList<T> {
   }
 
   insertAfter(afterNode: Node<T>, value: T): this {
-    const insertion = node(value, afterNode.next);
+    const insertion = LinkedList.node(value, afterNode.next);
     afterNode.next = insertion;
 
     return this;
   }
 
   insertHead(value: T): this {
-    const insertion = node(value);
+    const insertion = LinkedList.node(value);
     if (this.headNode) {
       insertion.next = this.headNode;
     }
@@ -95,10 +99,6 @@ export class LinkedList<T> {
 
     return this;
   }
-}
-
-function node<T>(value: T, next: Node<T> | null = null): Node<T> {
-  return { value, next };
 }
 
 /* eslint-enable no-param-reassign */
