@@ -107,7 +107,7 @@ export class Matrix<T> {
     return this.data.at(row)?.at(column);
   }
 
-  getColumn(column: number): T[] {
+  getColumn(column: number): T[] | undefined {
     return this.data.map((row) => row[column]);
   }
 
@@ -120,7 +120,7 @@ export class Matrix<T> {
     return columns;
   }
 
-  getRow(row: number): T[] {
+  getRow(row: number): T[] | undefined {
     return this.data[row];
   }
 
