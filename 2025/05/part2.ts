@@ -8,8 +8,6 @@ export default function main(inputs: DayInputs): number {
   const { goodRanges: good } = inputs;
   let count = ZERO;
 
-  console.log(good.map((v) => v.join("-")).join("\n"));
-
   good.forEach(([min, max]) => {
     count += max - min + ONE; // add an extra one because its inclusive
   });
