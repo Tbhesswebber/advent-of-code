@@ -20,6 +20,7 @@ interface InitPrompt extends DatePrompt {
 }
 
 export const initCommand = new Command("init")
+  .alias("i")
   .version("1.0.0")
   .description("initialize the necessary files for the day")
   .addOption(yearOption)

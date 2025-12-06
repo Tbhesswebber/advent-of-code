@@ -19,6 +19,7 @@ interface InitPrompt extends DatePrompt {
 }
 
 export const pullCommand = new Command("pull")
+  .alias("p")
   .version("1.0.0")
   .description("download the input for the day")
   .addOption(yearOption)

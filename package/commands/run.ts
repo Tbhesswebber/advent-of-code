@@ -21,6 +21,7 @@ interface RunnerPrompt {
 }
 
 export const runCommand = new Command("run")
+  .alias("r")
   .version("1.0.0")
   .description("run the code for a specified day")
   .addOption(yearOption)

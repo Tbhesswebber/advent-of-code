@@ -20,6 +20,7 @@ interface OpenPrompt extends DatePrompt {
 }
 
 export const openCommand = new Command("open")
+  .alias("o")
   .version("1.0.0")
   .description("open all or some of the useful apps for the day")
   .addOption(yearOption)

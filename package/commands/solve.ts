@@ -21,6 +21,7 @@ interface RunnerPrompt {
 const __dirname = import.meta.dir;
 
 export const solveCommand = new Command("solve")
+  .alias("s")
   .version("1.0.0")
   .description(
     "rerun the code for the day, storing the output to a file within the day's directory and then commit the directory",
