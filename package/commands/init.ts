@@ -82,5 +82,7 @@ export const initCommand = new Command("init")
       } else {
         logger.error(error);
       }
+    } finally {
+      process.exit();
     }
   });

@@ -88,5 +88,7 @@ export const runCommand = new Command("run")
           `AoC ${year} day ${day}, part ${part} has errored!`,
         ]);
       }
+    } finally {
+      process.exit();
     }
   });

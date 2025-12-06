@@ -20,6 +20,7 @@ process.on("beforeExit", (code) => {
     console.log(heapStats());
     report(["Christmas is in danger", `Program exited with exit code ${code}`]);
   }
+  process.exit();
 });
 
 program.parse(process.argv);

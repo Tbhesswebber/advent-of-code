@@ -64,5 +64,7 @@ Get your input at: ${api.inputUrl}`,
       } else {
         logger.error(error);
       }
+    } finally {
+      process.exit();
     }
   });

@@ -95,5 +95,7 @@ export const solveCommand = new Command("solve")
           `AoC ${year} day ${day} has errored!`,
         ]);
       }
+    } finally {
+      process.exit();
     }
   });

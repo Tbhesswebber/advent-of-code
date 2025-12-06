@@ -76,5 +76,7 @@ export const openCommand = new Command("open")
       } else {
         logger.error(error);
       }
+    } finally {
+      process.exit();
     }
   });

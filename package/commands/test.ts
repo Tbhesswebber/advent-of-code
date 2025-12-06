@@ -103,5 +103,7 @@ export const testCommand = new Command("test")
           `AoC ${year} day ${day}, part ${part} has errored!`,
         ]);
       }
+    } finally {
+      process.exit();
     }
   });
