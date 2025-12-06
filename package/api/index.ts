@@ -29,6 +29,11 @@ interface Config<TShouldFetch extends boolean = false> {
 }
 
 export class AoC {
+  readonly attempts: Record<Part, Set<number>> = {
+    [Part.One]: new Set(),
+    [Part.Two]: new Set(),
+  };
+
   readonly ideCommand: string = "code";
 
   readonly results: Record<Part, number | undefined> = {
@@ -129,6 +134,19 @@ export class AoC {
     return this.testInputPath;
   }
 
+  async loadPreviousAttempts(): Promise<void> {
+    const contentString = await readFile(this.resultPath, {
+      encoding: "utf8",
+    });
+    const contents = JSON.parse(contentString) as AoC.ResultsFile;
+    contents.one.attempts.forEach((value) =>
+      this.attempts[Part.One].add(value),
+    );
+    contents.two.attempts.forEach((value) =>
+      this.attempts[Part.Two].add(value),
+    );
+  }
+
   async run(part: Part, inputPath?: string): Promise<number | null> {
     const rawValues = await readFile(inputPath ?? this.inputPath, {
       encoding: "utf8",
@@ -152,9 +170,15 @@ export class AoC {
       }),
     );
 
-    this.results[part] = solution(transform(values));
+    const result = solution(transform(values));
+    this.attempts[part].add(result);
+    this.results[part] = result;
 
     return this.results[part];
+  }
+
+  async saveAttempt(): Promise<void> {
+    await writeFile(this.resultPath, jsonify(this.attempts));
   }
 
   async saveResults(): Promise<void> {
@@ -170,5 +194,19 @@ export class AoC {
       this.createSolutionFile(Part.One, { force }),
       this.createSolutionFile(Part.Two, { force }),
     ]);
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-namespace -- using this do connect static types to the class
+export declare namespace AoC {
+  interface ResultsFile {
+    one: {
+      answer: number | null;
+      attempts: number[];
+    };
+    two: {
+      answer: number | null;
+      attempts: number[];
+    };
   }
 }
